@@ -1,0 +1,118 @@
+import {
+  GraduationCap, ScanLine, Calculator, FileText, Ticket,
+  LayoutDashboard, Plus, ClipboardList, BarChart3, ArrowLeftRight,
+  Users, BookOpen, Calendar, FileBarChart, AlertTriangle, Settings
+} from "lucide-react";
+import { useRole } from "@/contexts/RoleContext";
+import { NavLink } from "@/components/NavLink";
+import {
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
+  SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
+  SidebarHeader, SidebarFooter, useSidebar,
+} from "@/components/ui/sidebar";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import type { Role } from "@/lib/mock-data";
+
+const studentMenu = [
+  { title: "Dashboard", url: "/student/dashboard", icon: LayoutDashboard },
+  { title: "QR Scanner", url: "/student/scan", icon: ScanLine },
+  { title: "What-If Simulator", url: "/student/simulator", icon: Calculator },
+  { title: "Leave Management", url: "/student/leaves", icon: FileText },
+  { title: "Exam Permit", url: "/student/permit", icon: Ticket },
+];
+
+const facultyMenu = [
+  { title: "Dashboard", url: "/faculty/dashboard", icon: LayoutDashboard },
+  { title: "New Session", url: "/faculty/session/new", icon: Plus },
+  { title: "Attendance Records", url: "/faculty/records", icon: ClipboardList },
+  { title: "Analytics", url: "/faculty/analytics", icon: BarChart3 },
+];
+
+const adminMenu = [
+  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
+  { title: "Students", url: "/admin/students", icon: Users },
+  { title: "Courses", url: "/admin/courses", icon: BookOpen },
+  { title: "Timetable", url: "/admin/timetable", icon: Calendar },
+  { title: "Reports", url: "/admin/reports", icon: FileBarChart },
+  { title: "Shortage Alerts", url: "/admin/alerts", icon: AlertTriangle },
+];
+
+const roleConfig: Record<Role, { label: string; menu: typeof studentMenu; icon: React.ElementType }> = {
+  student: { label: "Student", menu: studentMenu, icon: GraduationCap },
+  faculty: { label: "Faculty", menu: facultyMenu, icon: BookOpen },
+  admin: { label: "Admin / HOD", menu: adminMenu, icon: Settings },
+};
+
+export function AppSidebar() {
+  const { role, setRole } = useRole();
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
+  const config = roleConfig[role];
+
+  return (
+    <Sidebar collapsible="icon" className="border-r border-border/50">
+      <SidebarHeader className="p-4">
+        {!collapsed && (
+          <div className="mb-3">
+            <h1 className="text-lg font-bold tracking-tight">
+              <span className="text-primary">Aura</span>
+              <span className="text-foreground">Attend</span>
+            </h1>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Pro 2026</p>
+          </div>
+        )}
+        {collapsed && <div className="mb-2 h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">A</div>}
+        {!collapsed && (
+          <Select value={role} onValueChange={(v) => setRole(v as Role)}>
+            <SelectTrigger className="h-9 bg-secondary/50 border-border/50 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="student">🎓 Student View</SelectItem>
+              <SelectItem value="faculty">📚 Faculty View</SelectItem>
+              <SelectItem value="admin">⚙️ Admin / HOD View</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground/60">
+            {config.label} Module
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {config.menu.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={item.url} end className="hover:bg-accent/50 text-muted-foreground" activeClassName="bg-primary/10 text-primary font-medium">
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="p-4">
+        {!collapsed && (
+          <div className="rounded-lg bg-secondary/30 border border-border/30 p-3">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">AS</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate">Aarav Sharma</p>
+                <p className="text-[10px] text-muted-foreground truncate">NIT Trichy • CSE</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </SidebarFooter>
+    </Sidebar>
+  );
+}
