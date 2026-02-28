@@ -74,9 +74,13 @@ export const usersAPI = {
 
   createUser: (data: any) => api.post("/users", data),
 
-  createFaculty: (data: any) => api.post("/users", { ...data, role: "faculty" }),
+  createFaculty: (data: any) => api.post("/users/faculty", data),
+
+  createStudent: (data: any) => api.post("/users/students", data),
 
   updateUser: (id: string | number, data: any) => api.put(`/users/${id}`, data),
+
+  updateStudentProfile: (id: string | number, data: any) => api.put(`/users/${id}/profile`, data),
 
   deleteUser: (id: string | number) => api.delete(`/users/${id}`),
 };

@@ -51,6 +51,7 @@ model Users {
   // Course relations (via profile join tables defined on Course model)
   facultyCourses  Course[] @relation("FacultyCourses")
   studentCourses  Course[] @relation("StudentCourses")
+  studentSubjects Subject[] @relation("StudentSubjects")
 }
 
 // ─── Profiles ────────────────────────────────────────────────────────────────
@@ -144,6 +145,9 @@ model Subject {
   sessions         Session[]   @relation("SubjectSessions")
   timetableEntries Timetable[] @relation("SubjectTimetable")
   grades           Grade[]     @relation("SubjectGrades")
+  students         Users[]     @relation("StudentSubjects")
+
+  @@unique([name, courseId])
 }
 
 // ─── Sessions & Attendance ────────────────────────────────────────────────────

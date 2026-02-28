@@ -163,14 +163,32 @@ router.post(
       }
 
       // Check if student is enrolled in the course
-      const isEnrolled = session.course.students.some(
+      const isEnrolledInCourse = session.course.students.some(
         (student) => student.id === studentId,
       );
 
-      if (!isEnrolled) {
+      if (!isEnrolledInCourse) {
         const error = new Error("Student is not enrolled in this course");
         error.statusCode = 400;
         throw error;
+      }
+
+      // Check if student is enrolled in the specific subject (if assigned)
+      if (session.subjectId) {
+        const student = await prisma.users.findUnique({
+          where: { id: studentId },
+          include: { studentSubjects: true }
+        });
+
+        const isEnrolledInSubject = (student.studentSubjects || []).some(
+          (s) => s.id === session.subjectId
+        );
+
+        if (!isEnrolledInSubject) {
+          const error = new Error("Student is not enrolled in this subject");
+          error.statusCode = 400;
+          throw error;
+        }
       }
 
       // Check if attendance already exists
@@ -404,14 +422,32 @@ router.post(
       }
 
       // Check if student is enrolled in the course
-      const isEnrolled = qrCodeData.session.course.students.some(
+      const isEnrolledInCourse = qrCodeData.session.course.students.some(
         (student) => student.id === req.user.id,
       );
 
-      if (!isEnrolled) {
+      if (!isEnrolledInCourse) {
         const error = new Error("Student is not enrolled in this course");
         error.statusCode = 400;
         throw error;
+      }
+
+      // Check if student is enrolled in the specific subject
+      if (qrCodeData.session.subjectId) {
+        const student = await prisma.users.findUnique({
+          where: { id: req.user.id },
+          include: { studentSubjects: true }
+        });
+
+        const isEnrolledInSubject = (student.studentSubjects || []).some(
+          (s) => s.id === qrCodeData.session.subjectId
+        );
+
+        if (!isEnrolledInSubject) {
+          const error = new Error("Student is not enrolled in this subject");
+          error.statusCode = 400;
+          throw error;
+        }
       }
 
       // Check if attendance already exists

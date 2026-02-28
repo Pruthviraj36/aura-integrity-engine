@@ -5,9 +5,58 @@ const authMiddleware = require("../middleware/auth");
 
 const router = express.Router();
 
-// @route   GET /api/users
-// @desc    Get all users
+// @route   POST /api/users/students
+// @desc    Create a new student with profile
 // @access  Admin
+router.post("/students", authMiddleware, async (req, res, next) => {
+  try {
+    if (req.user.role !== "admin") {
+      const error = new Error("Forbidden");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    const { username, email, password, fullName, enrollmentNumber, rollNumber, department, batch, currentSemester } = req.body;
+
+    const existing = await prisma.users.findFirst({
+      where: { OR: [{ username }, { email }] }
+    });
+
+    if (existing) {
+      const error = new Error("User already exists");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const bcrypt = require("bcryptjs");
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = await prisma.users.create({
+      data: {
+        username,
+        email,
+        passwordHash,
+        role: "student",
+        studentProfile: {
+          create: {
+            fullName,
+            enrollmentNumber,
+            rollNumber,
+            department,
+            batch,
+            currentSemester: parseInt(currentSemester) || 1
+          }
+        }
+      },
+      include: { studentProfile: true }
+    });
+
+    res.status(201).json({ success: true, data: { user } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/", authMiddleware, async (req, res, next) => {
   try {
     // Only admins can view all users
@@ -26,6 +75,21 @@ router.get("/", authMiddleware, async (req, res, next) => {
       where.OR = [
         { username: { contains: search } },
         { email: { contains: search } },
+        {
+          studentProfile: {
+            OR: [
+              { fullName: { contains: search } },
+              { enrollmentNumber: { contains: search } },
+              { department: { contains: search } },
+              { batch: { contains: search } }
+            ]
+          }
+        },
+        {
+          facultyProfile: {
+            fullName: { contains: search }
+          }
+        }
       ];
     }
 
