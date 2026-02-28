@@ -154,9 +154,9 @@ router.post(
           name,
           description,
           department,
-          credits,
-          semester,
-          ...(facultyId && { facultyId }),
+          credits: parseInt(credits),
+          semester: parseInt(semester),
+          ...(facultyId && { facultyId: parseInt(facultyId) }),
           ...(status && { status }),
         },
         include: {
@@ -206,9 +206,9 @@ router.put("/:id", authMiddleware, async (req, res, next) => {
         ...(name && { name }),
         ...(description && { description }),
         ...(department && { department }),
-        ...(credits && { credits }),
-        ...(semester && { semester }),
-        ...(facultyId && { facultyId }),
+        ...(credits && { credits: parseInt(credits) }),
+        ...(semester && { semester: parseInt(semester) }),
+        ...(facultyId && { facultyId: parseInt(facultyId) }),
         ...(status && { status }),
       },
       include: {
@@ -306,8 +306,8 @@ router.post(
           courseId: parseInt(req.params.id),
           name,
           description,
-          credits,
-          totalClasses: totalClasses || 0,
+          credits: parseInt(credits),
+          totalClasses: totalClasses ? parseInt(totalClasses) : 0,
         },
         include: {
           course: true,
@@ -346,8 +346,8 @@ router.put(
         data: {
           ...(name && { name }),
           ...(description && { description }),
-          ...(credits && { credits }),
-          ...(totalClasses && { totalClasses }),
+          ...(credits && { credits: parseInt(credits) }),
+          ...(totalClasses && { totalClasses: parseInt(totalClasses) }),
         },
         include: {
           course: true,

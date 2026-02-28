@@ -96,6 +96,11 @@ export const coursesAPI = {
   updateCourse: (id: string | number, data: any) => api.put(`/courses/${id}`, data),
 
   deleteCourse: (id: string | number) => api.delete(`/courses/${id}`),
+
+  createSubject: (courseId: string | number, data: any) =>
+    api.post(`/courses/${courseId}/subjects`, data),
+
+  deleteSubject: (id: string | number) => api.delete(`/subjects/${id}`),
 };
 
 // Sessions API
@@ -164,7 +169,7 @@ export const leavesAPI = {
 
 // Timetable API
 export const timetableAPI = {
-  getTimetable: () => api.get("/timetable"),
+  getTimetable: (params?: any) => api.get("/timetable", { params }),
 
   getTimetableByCourse: (courseId: string) =>
     api.get(`/timetable/course/${courseId}`),

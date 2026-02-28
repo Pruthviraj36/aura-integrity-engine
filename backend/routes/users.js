@@ -57,6 +57,57 @@ router.post("/students", authMiddleware, async (req, res, next) => {
   }
 });
 
+// @route   POST /api/users/faculty
+// @desc    Create a new faculty with profile
+// @access  Admin
+router.post("/faculty", authMiddleware, async (req, res, next) => {
+  try {
+    if (req.user.role !== "admin") {
+      const error = new Error("Forbidden");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    const { username, email, password, fullName, employeeId, department, designation, qualification } = req.body;
+
+    const existing = await prisma.users.findFirst({
+      where: { OR: [{ username }, { email }] }
+    });
+
+    if (existing) {
+      const error = new Error("User already exists");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const bcrypt = require("bcryptjs");
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = await prisma.users.create({
+      data: {
+        username,
+        email,
+        passwordHash,
+        role: "faculty",
+        facultyProfile: {
+          create: {
+            fullName,
+            employeeId,
+            department,
+            designation,
+            qualification
+          }
+        }
+      },
+      include: { facultyProfile: true }
+    });
+
+    res.status(201).json({ success: true, data: { user } });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/", authMiddleware, async (req, res, next) => {
   try {
     // Only admins can view all users

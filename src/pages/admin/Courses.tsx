@@ -1,14 +1,30 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Plus, Edit2, Trash2, X, Save, BookOpen } from "lucide-react";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { coursesAPI } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { coursesAPI, usersAPI } from "@/lib/api";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function CourseManagement() {
-  const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    code: "",
+    name: "",
+    department: "",
+    semester: "1",
+    credits: "4",
+    status: "active"
+  });
 
   const { data: coursesData, isLoading } = useQuery({
     queryKey: ["admin", "courses"],
@@ -18,6 +34,78 @@ export default function CourseManagement() {
       return data.courses || (Array.isArray(data) ? data : []);
     }
   });
+
+  const createMutation = useMutation({
+    mutationFn: (data: any) => coursesAPI.createCourse(data),
+    onSuccess: () => {
+      toast.success("Course indexed successfully");
+      queryClient.invalidateQueries({ queryKey: ["admin", "courses"] });
+      setIsAddOpen(false);
+    },
+    onError: (err: any) => toast.error(err.response?.data?.message || "Indexing failure")
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number, data: any }) => coursesAPI.updateCourse(id, data),
+    onSuccess: () => {
+      toast.success("Registry updated");
+      queryClient.invalidateQueries({ queryKey: ["admin", "courses"] });
+      setIsEditOpen(false);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => coursesAPI.deleteCourse(id),
+    onSuccess: () => {
+      toast.success("Course purged from registry");
+      queryClient.invalidateQueries({ queryKey: ["admin", "courses"] });
+    }
+  });
+
+  const [isSubjectsOpen, setIsSubjectsOpen] = useState(false);
+  const [subjectForm, setSubjectForm] = useState({
+    code: "",
+    name: "",
+    type: "Theory",
+    credits: "4"
+  });
+
+  const subjectMutation = useMutation({
+    mutationFn: (data: any) => coursesAPI.createSubject(selectedCourse.id, data),
+    onSuccess: () => {
+      toast.success("Subject synchronized");
+      queryClient.invalidateQueries({ queryKey: ["admin", "courses"] });
+      setSubjectForm({ code: "", name: "", type: "Theory", credits: "4" });
+    }
+  });
+
+  const deleteSubjectMutation = useMutation({
+    mutationFn: (id: number) => coursesAPI.deleteSubject(id),
+    onSuccess: () => {
+      toast.success("Subject purged");
+      queryClient.invalidateQueries({ queryKey: ["admin", "courses"] });
+    }
+  });
+
+  const handleEdit = (course: any) => {
+    setSelectedCourse(course);
+    setFormData({
+      code: course.code,
+      name: course.name,
+      department: course.department,
+      semester: course.semester.toString(),
+      credits: course.credits.toString(),
+      status: course.status
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleManageSubjects = (course: any) => {
+    setSelectedCourse(course);
+    setIsSubjectsOpen(true);
+  };
+
+  const [search, setSearch] = useState("");
 
   const courses = Array.isArray(coursesData) ? coursesData : [];
 
@@ -38,9 +126,90 @@ export default function CourseManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white uppercase tracking-tighter">Academic Course Registry</h1>
-          <p className="text-sm text-slate-400 font-mono tracking-wider">{courses.length} REGISTERED ENTITIES</p>
+          <h1 className="text-3xl font-black tracking-tighter text-white uppercase italic flex items-center gap-3">
+            <BookOpen className="h-8 w-8 text-primary" />
+            Academic Registry Ontoloy
+          </h1>
+          <p className="text-sm text-slate-500 font-mono tracking-widest mt-1 uppercase">
+            {courses.length} REGISTERED ENTITIES IN CORE SYSTEM
+          </p>
         </div>
+        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90 font-bold uppercase tracking-widest text-[10px] h-9 px-6">
+              <Plus className="mr-2 h-4 w-4" /> Index New Course
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-slate-900 border-slate-800 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-black uppercase italic tracking-tighter">Initialise New Course Entity</DialogTitle>
+              <DialogDescription className="text-slate-500 font-mono text-[10px] uppercase">Define core parameters for the academic engine</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Unique Code</Label>
+                  <Input
+                    placeholder="e.g. CSE-302"
+                    value={formData.code}
+                    onChange={e => setFormData({ ...formData, code: e.target.value })}
+                    className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Credits</Label>
+                  <Input
+                    type="number"
+                    value={formData.credits}
+                    onChange={e => setFormData({ ...formData, credits: e.target.value })}
+                    className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Course Title</Label>
+                <Input
+                  placeholder="e.g. Distributed Systems"
+                  value={formData.name}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Department</Label>
+                  <Input
+                    placeholder="e.g. CSE"
+                    value={formData.department}
+                    onChange={e => setFormData({ ...formData, department: e.target.value })}
+                    className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Semester</Label>
+                  <Select value={formData.semester} onValueChange={v => setFormData({ ...formData, semester: v })}>
+                    <SelectTrigger className="bg-slate-950 border-slate-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                        <SelectItem key={s} value={s.toString()}>SEM {s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <Button
+                className="w-full mt-4 bg-primary hover:bg-primary/90 font-black uppercase italic tracking-tighter"
+                onClick={() => createMutation.mutate(formData)}
+                disabled={createMutation.isPending}
+              >
+                {createMutation.isPending ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                Commit to Registry
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="relative max-w-sm group">
@@ -64,6 +233,7 @@ export default function CourseManagement() {
                 <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Semester</TableHead>
                 <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Credits</TableHead>
                 <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Faculty Head</TableHead>
+                <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -79,6 +249,30 @@ export default function CourseManagement() {
                   <TableCell className="text-sm text-slate-300 italic">
                     {c.faculty?.facultyProfile?.fullName || c.faculty?.username || "Not Assigned"}
                   </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-slate-400 hover:text-white hover:bg-white/10"
+                        onClick={() => handleEdit(c)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-400 hover:text-red-500 hover:bg-red-500/10"
+                        onClick={() => {
+                          if (confirm(`Purge ${c.code} from registry? This will affect all associated subjects and sessions.`)) {
+                            deleteMutation.mutate(c.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
               {filtered.length === 0 && (
@@ -90,6 +284,143 @@ export default function CourseManagement() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit Course Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="bg-slate-900 border-slate-800 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black uppercase italic tracking-tighter text-primary">Modify Course Parameters</DialogTitle>
+            <DialogDescription className="text-slate-500 font-mono text-[10px] uppercase">Update registry entry for {selectedCourse?.code}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Course Title</Label>
+              <Input
+                value={formData.name}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Department</Label>
+                <Input
+                  value={formData.department}
+                  onChange={e => setFormData({ ...formData, department: e.target.value })}
+                  className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Semester</Label>
+                <Select value={formData.semester} onValueChange={v => setFormData({ ...formData, semester: v })}>
+                  <SelectTrigger className="bg-slate-950 border-slate-800">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                      <SelectItem key={s} value={s.toString()}>SEM {s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <Button
+              className="w-full mt-4 bg-primary hover:bg-primary/90 font-black uppercase italic tracking-tighter"
+              onClick={() => updateMutation.mutate({ id: selectedCourse.id, data: formData })}
+              disabled={updateMutation.isPending}
+            >
+              {updateMutation.isPending ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+              Synchronize Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Subject Management Dialog */}
+      <Dialog open={isSubjectsOpen} onOpenChange={setIsSubjectsOpen}>
+        <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black uppercase italic tracking-tighter text-primary">Granular Subject Registry</DialogTitle>
+            <DialogDescription className="text-slate-500 font-mono text-[10px] uppercase">Managing components for {selectedCourse?.code}</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Add Subject form */}
+            <div className="bg-slate-950/50 p-4 border border-slate-800 rounded-lg space-y-4">
+              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Index New Subject Component</h3>
+              <div className="grid grid-cols-12 gap-3">
+                <Input
+                  placeholder="CODE"
+                  className="col-span-3 bg-slate-900 border-slate-800 text-xs"
+                  value={subjectForm.code}
+                  onChange={e => setSubjectForm({ ...subjectForm, code: e.target.value })}
+                />
+                <Input
+                  placeholder="SUBJECT NAME"
+                  className="col-span-4 bg-slate-900 border-slate-800 text-xs"
+                  value={subjectForm.name}
+                  onChange={e => setSubjectForm({ ...subjectForm, name: e.target.value })}
+                />
+                <Select value={subjectForm.type} onValueChange={v => setSubjectForm({ ...subjectForm, type: v })}>
+                  <SelectTrigger className="col-span-3 bg-slate-900 border-slate-800 text-xs h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                    <SelectItem value="Theory">Theory</SelectItem>
+                    <SelectItem value="Practical">Practical</SelectItem>
+                    <SelectItem value="Tutorial">Tutorial</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  className="col-span-2 h-9 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30"
+                  onClick={() => subjectMutation.mutate(subjectForm)}
+                  disabled={subjectMutation.isPending}
+                >
+                  {subjectMutation.isPending ? <Loader2 className="animate-spin h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            {/* List of subjects */}
+            <div className="space-y-2">
+              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Active Components</h3>
+              <div className="border border-slate-800 rounded-lg overflow-hidden">
+                <Table>
+                  <TableBody>
+                    {selectedCourse?.subjects?.map((s: any) => (
+                      <TableRow key={s.id} className="border-slate-800 hover:bg-white/5 bg-slate-900/40">
+                        <TableCell className="font-mono text-xs font-bold text-primary">{s.code}</TableCell>
+                        <TableCell className="text-sm font-medium">{s.name}</TableCell>
+                        <TableCell>
+                          <span className="text-[10px] font-bold uppercase tracking-widest bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">
+                            {s.type}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-400 hover:text-red-500 hover:bg-red-500/10 h-8 w-8 p-0"
+                            onClick={() => {
+                              if (confirm('Purge this subject component?')) deleteSubjectMutation.mutate(s.id);
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!selectedCourse?.subjects || selectedCourse.subjects.length === 0) && (
+                      <TableRow>
+                        <TableCell className="text-center py-8 text-slate-500 font-mono text-xs uppercase italic">No active components indexed</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { UserPlus, BookOpen, Trash2, Mail, Shield, Loader2 } from "lucide-react";
+import { UserPlus, BookOpen, Trash2, Mail, Shield, Loader2, Edit2, Save } from "lucide-react";
 
 export default function FacultyManagement() {
     const queryClient = useQueryClient();
@@ -54,6 +54,26 @@ export default function FacultyManagement() {
         }
     });
 
+    const updateFacultyMutation = useMutation({
+        mutationFn: ({ id, data }: { id: number, data: any }) => usersAPI.updateStudentProfile(id, data), // reusing update profile logic
+        onSuccess: () => {
+            toast.success("Faculty profile updated successfully");
+            queryClient.invalidateQueries({ queryKey: ["admin", "faculty"] });
+            setIsEditOpen(false);
+            setSelectedFaculty(null);
+        },
+        onError: (err: any) => toast.error(err.response?.data?.message || "Failed to update faculty")
+    });
+
+    const deleteFacultyMutation = useMutation({
+        mutationFn: (id: number) => usersAPI.deleteUser(id),
+        onSuccess: () => {
+            toast.success("Faculty member removed from system");
+            queryClient.invalidateQueries({ queryKey: ["admin", "faculty"] });
+        },
+        onError: (err: any) => toast.error(err.response?.data?.message || "Failed to delete faculty")
+    });
+
     const assignSubjectMutation = useMutation({
         mutationFn: ({ facultyId, courseId }: { facultyId: number, courseId: number }) =>
             coursesAPI.updateCourse(courseId, { facultyId }),
@@ -61,8 +81,32 @@ export default function FacultyManagement() {
             toast.success("Subject assigned successfully");
             queryClient.invalidateQueries({ queryKey: ["admin", "courses"] });
             queryClient.invalidateQueries({ queryKey: ["admin", "faculty"] });
+            setIsAssignOpen(false);
         }
     });
+
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isAssignOpen, setIsAssignOpen] = useState(false);
+    const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
+
+    const handleEdit = (member: any) => {
+        setSelectedFaculty(member);
+        setFormData({
+            username: member.username,
+            password: "",
+            fullName: member.facultyProfile?.fullName || "",
+            email: member.email,
+            employeeId: member.facultyProfile?.employeeId || "",
+            department: member.facultyProfile?.department || ""
+        });
+        setIsEditOpen(true);
+    };
+
+    const handleDelete = (id: number) => {
+        if (confirm("Are you sure you want to remove this faculty member? This action cannot be undone.")) {
+            deleteFacultyMutation.mutate(id);
+        }
+    };
 
     if (isFacultyLoading) {
         return (
@@ -197,32 +241,35 @@ export default function FacultyManagement() {
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10">
-                                                        <BookOpen className="h-4 w-4" />
-                                                    </Button>
-                                                </DialogTrigger>
-                                                <DialogContent className="bg-slate-900 border-slate-800 text-white">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Assign Subject to {member.username}</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="py-4 space-y-4">
-                                                        <Select onValueChange={(val) => assignSubjectMutation.mutate({ facultyId: member.id, courseId: parseInt(val) })}>
-                                                            <SelectTrigger className="bg-slate-950 border-slate-800">
-                                                                <SelectValue placeholder="Select a subject..." />
-                                                            </SelectTrigger>
-                                                            <SelectContent className="bg-slate-900 border-slate-800 text-white">
-                                                                {courses?.filter((c: any) => c.facultyId !== member.id).map((course: any) => (
-                                                                    <SelectItem key={course.id} value={course.id.toString()}>
-                                                                        {course.code} — {course.name}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                </DialogContent>
-                                            </Dialog>
+                                            <div className="flex justify-end gap-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-primary hover:text-primary hover:bg-primary/10"
+                                                    onClick={() => {
+                                                        setSelectedFaculty(member);
+                                                        setIsAssignOpen(true);
+                                                    }}
+                                                >
+                                                    <BookOpen className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-slate-400 hover:text-white hover:bg-white/10"
+                                                    onClick={() => handleEdit(member)}
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-red-400 hover:text-red-500 hover:bg-red-500/10"
+                                                    onClick={() => handleDelete(member.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -231,6 +278,79 @@ export default function FacultyManagement() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Edit Dialog */}
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="bg-slate-900 border-slate-800 text-white">
+                    <DialogHeader>
+                        <DialogTitle>Edit Faculty Profile</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
+                            <Input
+                                value={formData.fullName}
+                                onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                                className="bg-slate-950 border-slate-800"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-slate-500 uppercase">Employee ID</label>
+                                <Input
+                                    value={formData.employeeId}
+                                    onChange={e => setFormData({ ...formData, employeeId: e.target.value })}
+                                    className="bg-slate-950 border-slate-800"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-slate-500 uppercase">Department</label>
+                                <Input
+                                    value={formData.department}
+                                    onChange={e => setFormData({ ...formData, department: e.target.value })}
+                                    className="bg-slate-950 border-slate-800"
+                                />
+                            </div>
+                        </div>
+                        <Button
+                            className="w-full mt-4"
+                            onClick={() => updateFacultyMutation.mutate({ id: selectedFaculty?.id, data: formData })}
+                            disabled={updateFacultyMutation.isPending}
+                        >
+                            {updateFacultyMutation.isPending ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                            Update Profile
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Assign Subject Dialog */}
+            <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
+                <DialogContent className="bg-slate-900 border-slate-800 text-white">
+                    <DialogHeader>
+                        <DialogTitle>Assign Subject to {selectedFaculty?.username}</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <Select onValueChange={(val) => assignSubjectMutation.mutate({ facultyId: selectedFaculty?.id, courseId: parseInt(val) })}>
+                            <SelectTrigger className="bg-slate-950 border-slate-800">
+                                <SelectValue placeholder="Select a subject..." />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                                {courses?.filter((c: any) => c.facultyId !== selectedFaculty?.id).map((course: any) => (
+                                    <SelectItem key={course.id} value={course.id.toString()}>
+                                        {course.code} — {course.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        {assignSubjectMutation.isPending && (
+                            <div className="flex items-center justify-center py-2">
+                                <Loader2 className="animate-spin h-4 w-4 text-primary" />
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
