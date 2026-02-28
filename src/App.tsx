@@ -28,6 +28,7 @@ import Analytics from "./pages/faculty/Analytics";
 import AdminDashboard from "./pages/admin/Dashboard";
 import StudentManagement from "./pages/admin/Students";
 import CourseManagement from "./pages/admin/Courses";
+import FacultyManagement from "./pages/admin/FacultyManagement";
 import Timetable from "./pages/admin/Timetable";
 import Reports from "./pages/admin/Reports";
 import ShortageAlerts from "./pages/admin/Alerts";
@@ -67,6 +68,7 @@ const AppContent = () => {
         <Route path="/faculty/analytics" element={<Analytics />} />
         {/* Admin */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/faculty" element={<FacultyManagement />} />
         <Route path="/admin/students" element={<StudentManagement />} />
         <Route path="/admin/courses" element={<CourseManagement />} />
         <Route path="/admin/timetable" element={<Timetable />} />

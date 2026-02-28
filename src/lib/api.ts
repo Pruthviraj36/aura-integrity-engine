@@ -68,26 +68,30 @@ export const authAPI = {
 export const usersAPI = {
   getUsers: (params?: any) => api.get("/users", { params }),
 
-  getUser: (id: string) => api.get(`/users/${id}`),
+  getFaculty: () => api.get("/users/faculty"),
+
+  getUser: (id: string | number) => api.get(`/users/${id}`),
 
   createUser: (data: any) => api.post("/users", data),
 
-  updateUser: (id: string, data: any) => api.put(`/users/${id}`, data),
+  createFaculty: (data: any) => api.post("/users", { ...data, role: "faculty" }),
 
-  deleteUser: (id: string) => api.delete(`/users/${id}`),
+  updateUser: (id: string | number, data: any) => api.put(`/users/${id}`, data),
+
+  deleteUser: (id: string | number) => api.delete(`/users/${id}`),
 };
 
 // Courses API
 export const coursesAPI = {
   getCourses: (params?: any) => api.get("/courses", { params }),
 
-  getCourse: (id: string) => api.get(`/courses/${id}`),
+  getCourse: (id: string | number) => api.get(`/courses/${id}`),
 
   createCourse: (data: any) => api.post("/courses", data),
 
-  updateCourse: (id: string, data: any) => api.put(`/courses/${id}`, data),
+  updateCourse: (id: string | number, data: any) => api.put(`/courses/${id}`, data),
 
-  deleteCourse: (id: string) => api.delete(`/courses/${id}`),
+  deleteCourse: (id: string | number) => api.delete(`/courses/${id}`),
 };
 
 // Sessions API

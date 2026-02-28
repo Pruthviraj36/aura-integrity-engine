@@ -72,7 +72,8 @@
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  code, pre {
+  code,
+  pre {
     font-family: 'JetBrains Mono', monospace;
   }
 }
@@ -82,13 +83,16 @@
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: hsl(var(--background));
 }
+
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground));
 }
@@ -97,25 +101,40 @@
 .glow-cyan {
   box-shadow: 0 0 20px -5px hsl(187 100% 50% / 0.3);
 }
+
 .glow-text-cyan {
   text-shadow: 0 0 20px hsl(187 100% 50% / 0.5);
 }
 
 /* Pulse ring animation */
 @keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(1.4); opacity: 0; }
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
 }
+
 .animate-pulse-ring {
   animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
-@keyframes scan-move {
-  0% { top: 0%; }
-  50% { top: 100%; }
-  100% { top: 0%; }
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
-.animate-scan-move {
-  animation: scan-move 3s ease-in-out infinite;
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

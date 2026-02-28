@@ -1,0 +1,236 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { usersAPI, coursesAPI } from "@/lib/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import { UserPlus, BookOpen, Trash2, Mail, Shield, Loader2 } from "lucide-react";
+
+export default function FacultyManagement() {
+    const queryClient = useQueryClient();
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [formData, setFormData] = useState({
+        username: "",
+        password: "",
+        fullName: "",
+        email: "",
+        employeeId: "",
+        department: ""
+    });
+
+    const { data: facultyData, isLoading: isFacultyLoading } = useQuery({
+        queryKey: ["admin", "faculty"],
+        queryFn: async () => {
+            const resp = await usersAPI.getFaculty();
+            return resp.data.data.faculty;
+        }
+    });
+
+    const { data: coursesData } = useQuery({
+        queryKey: ["admin", "courses"],
+        queryFn: async () => {
+            const resp = await coursesAPI.getCourses();
+            return resp.data.data.courses;
+        }
+    });
+
+    const faculty = facultyData;
+    const courses = coursesData;
+
+    const createFacultyMutation = useMutation({
+        mutationFn: (data: any) => usersAPI.createFaculty(data),
+        onSuccess: () => {
+            toast.success("Faculty member created successfully");
+            queryClient.invalidateQueries({ queryKey: ["admin", "faculty"] });
+            setIsAddDialogOpen(false);
+            setFormData({ username: "", password: "", fullName: "", email: "", employeeId: "", department: "" });
+        },
+        onError: (err: any) => {
+            toast.error(err.response?.data?.message || "Failed to create faculty");
+        }
+    });
+
+    const assignSubjectMutation = useMutation({
+        mutationFn: ({ facultyId, courseId }: { facultyId: number, courseId: number }) =>
+            coursesAPI.updateCourse(courseId, { facultyId }),
+        onSuccess: () => {
+            toast.success("Subject assigned successfully");
+            queryClient.invalidateQueries({ queryKey: ["admin", "courses"] });
+            queryClient.invalidateQueries({ queryKey: ["admin", "faculty"] });
+        }
+    });
+
+    if (isFacultyLoading) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight text-white">Faculty Management</h1>
+                    <p className="text-sm text-slate-400">Manage institutional faculty and course assignments</p>
+                </div>
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button className="bg-primary hover:bg-primary/90">
+                            <UserPlus className="mr-2 h-4 w-4" /> Add Faculty
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-slate-900 border-slate-800 text-white">
+                        <DialogHeader>
+                            <DialogTitle>Add New Faculty Member</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase">Username</label>
+                                    <Input
+                                        value={formData.username}
+                                        onChange={e => setFormData({ ...formData, username: e.target.value })}
+                                        className="bg-slate-950 border-slate-800"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase">Password</label>
+                                    <Input
+                                        type="password"
+                                        value={formData.password}
+                                        onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                        className="bg-slate-950 border-slate-800"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
+                                <Input
+                                    value={formData.fullName}
+                                    onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                                    className="bg-slate-950 border-slate-800"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-slate-500 uppercase">Email</label>
+                                <Input
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                    className="bg-slate-950 border-slate-800"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase">Employee ID</label>
+                                    <Input
+                                        value={formData.employeeId}
+                                        onChange={e => setFormData({ ...formData, employeeId: e.target.value })}
+                                        className="bg-slate-950 border-slate-800"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase">Department</label>
+                                    <Input
+                                        value={formData.department}
+                                        onChange={e => setFormData({ ...formData, department: e.target.value })}
+                                        className="bg-slate-950 border-slate-800"
+                                    />
+                                </div>
+                            </div>
+                            <Button
+                                className="w-full mt-4"
+                                onClick={() => createFacultyMutation.mutate(formData)}
+                                disabled={createFacultyMutation.isPending}
+                            >
+                                {createFacultyMutation.isPending ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
+                                Create Account
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </div>
+
+            <div className="grid gap-6">
+                <Card className="bg-slate-900/40 border-slate-800 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium text-slate-400 uppercase tracking-wider">Active Faculty Members</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader className="bg-slate-950/60">
+                                <TableRow className="border-slate-800">
+                                    <TableHead className="text-slate-400 font-bold text-[10px] uppercase">Faculty Info</TableHead>
+                                    <TableHead className="text-slate-400 font-bold text-[10px] uppercase">Department</TableHead>
+                                    <TableHead className="text-slate-400 font-bold text-[10px] uppercase">Assigned Subjects</TableHead>
+                                    <TableHead className="text-slate-400 font-bold text-[10px] uppercase text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {faculty?.map((member: any) => (
+                                    <TableRow key={member.id} className="border-slate-800 hover:bg-white/5 transition-colors">
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                                    <Shield className="h-4 w-4 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-sm text-white">{member.profile?.fullName || member.username}</p>
+                                                    <p className="text-[10px] text-slate-500 font-medium">{member.profile?.employeeId || "EMPID-MISSING"}</p>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-xs text-slate-400 font-medium">{member.profile?.department || "N/A"}</TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-1">
+                                                {member.teachingCourses?.map((course: any) => (
+                                                    <span key={course.id} className="text-[9px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">
+                                                        {course.code}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10">
+                                                        <BookOpen className="h-4 w-4" />
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent className="bg-slate-900 border-slate-800 text-white">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Assign Subject to {member.username}</DialogTitle>
+                                                    </DialogHeader>
+                                                    <div className="py-4 space-y-4">
+                                                        <Select onValueChange={(val) => assignSubjectMutation.mutate({ facultyId: member.id, courseId: parseInt(val) })}>
+                                                            <SelectTrigger className="bg-slate-950 border-slate-800">
+                                                                <SelectValue placeholder="Select a subject..." />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                                                                {courses?.filter((c: any) => c.facultyId !== member.id).map((course: any) => (
+                                                                    <SelectItem key={course.id} value={course.id.toString()}>
+                                                                        {course.code} — {course.name}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
+}

@@ -1,7 +1,8 @@
 import {
   GraduationCap, ScanLine, Calculator, FileText, Ticket,
   LayoutDashboard, Plus, ClipboardList, BarChart3, ArrowLeftRight,
-  Users, BookOpen, Calendar, FileBarChart, AlertTriangle, Settings, LogOut
+  Users, BookOpen, Calendar, FileBarChart, AlertTriangle, Settings, LogOut,
+  Shield
 } from "lucide-react";
 import { useRole } from "@/contexts/RoleContext";
 import { NavLink } from "@/components/NavLink";
@@ -35,6 +36,7 @@ const facultyMenu = [
 
 const adminMenu = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
+  { title: "Faculty", url: "/admin/faculty", icon: Shield },
   { title: "Students", url: "/admin/students", icon: Users },
   { title: "Courses", url: "/admin/courses", icon: BookOpen },
   { title: "Timetable", url: "/admin/timetable", icon: Calendar },
