@@ -25,28 +25,28 @@ function updateEnvFile(filePath, newIp) {
 
     let content = fs.readFileSync(filePath, "utf8");
 
-    // Update VITE_NETWORK_IP - handle potential spaces
-    const ipRegex = /VITE_NETWORK_IP\s*=\s*["']?[\d.\s]+["']?/g;
+    // Update VITE_NETWORK_IP
+    const ipRegex = /^VITE_NETWORK_IP\s*=.*/m;
     if (ipRegex.test(content)) {
         content = content.replace(ipRegex, `VITE_NETWORK_IP="${newIp}"`);
     } else {
         content += `\nVITE_NETWORK_IP="${newIp}"\n`;
     }
 
-    // Update VITE_API_URL - handle potential spaces after http://
-    const apiUrlRegex = /VITE_API_URL\s*=\s*["']?http:\/\/\s*[\d.]+:(\d+)\/api["']?/g;
+    // Update VITE_API_URL
+    const apiUrlRegex = /^VITE_API_URL\s*=.*/m;
     if (apiUrlRegex.test(content)) {
-        content = content.replace(apiUrlRegex, (match, port) => `VITE_API_URL="http://${newIp}:${port}/api"`);
+        content = content.replace(apiUrlRegex, `VITE_API_URL="http://${newIp}:3001/api"`);
     } else if (filePath.includes('.env') && !filePath.includes('backend')) {
-        // If it's the root .env and VITE_API_URL is missing or broken
         content += `\nVITE_API_URL="http://${newIp}:3001/api"\n`;
     }
 
-    // Update CORS_ORIGIN in backend .env
-    const corsRegex = /CORS_ORIGIN\s*=\s*(.*)/g;
+    // Update CORS_ORIGIN
+    const corsRegex = /^CORS_ORIGIN\s*=.*/m;
     if (corsRegex.test(content)) {
-        content = content.replace(corsRegex, (match, origins) => {
-            const originList = origins.replace(/["']/g, '').split(',').map(o => o.trim());
+        content = content.replace(corsRegex, (match) => {
+            const origins = match.split('=')[1].replace(/["']/g, '');
+            const originList = origins.split(',').map(o => o.trim());
             const baseOrigins = originList.filter(o => !o.includes('localhost') && !/^http:\/\/[\d.]+/.test(o));
             const updatedOrigins = [`http://localhost:8080`, `http://${newIp}:8080`, ...baseOrigins];
             const uniqueOrigins = [...new Set(updatedOrigins)];

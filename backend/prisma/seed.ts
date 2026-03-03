@@ -1,6 +1,6 @@
+import "dotenv/config";
 import prisma from "./index";
 import bcrypt from "bcryptjs";
-import "dotenv/config";
 import studentsData from "../extracted_students.json";
 
 // In Prisma 7 with adapters, we use the centralized client from index.js
@@ -17,11 +17,11 @@ async function main() {
 
   // ── 1. Admin User ─────────────────────────────────────────────────────────────
   const admin = await prisma.users.upsert({
-    where: { email: "admin@aura.edu" },
+    where: { email: "admin@darshan.ac.in" },
     update: {},
     create: {
       username: "admin",
-      email: "admin@aura.edu",
+      email: "admin@darshan.ac.in",
       passwordHash: adminHash,
       role: "admin",
       status: "active",
@@ -37,7 +37,7 @@ async function main() {
   const facultyData = [
     {
       fullName: "Dixita Kagathara",
-      email: "dixita.kagathara@aura.edu",
+      email: "dixita.kagathara@darshan.ac.in",
       username: "dixita_kagathara",
       employeeId: "FAC2026001",
       department: "Computer Science",
@@ -46,7 +46,7 @@ async function main() {
     },
     {
       fullName: "Firoz Sherasiya",
-      email: "firoz.sherasiya@aura.edu",
+      email: "firoz.sherasiya@darshan.ac.in",
       username: "firoz_sherasiya",
       employeeId: "FAC2026002",
       department: "Computer Science",
@@ -55,16 +55,16 @@ async function main() {
     },
     {
       fullName: "Javed Nathani",
-      email: "javed.nathani@aura.edu",
+      email: "javed.nathani@darshan.ac.in",
       username: "javed_nathani",
       employeeId: "FAC2026003",
       department: "Computer Science",
       designation: "Assistant Professor",
-      subjects: ["Foundations of Algorithms (FOA)"],
+      subjects: ["Fundamentals of Accounting (FOA)"],
     },
     {
       fullName: "Jayesh Vagadiya",
-      email: "jayesh.vagadiya@aura.edu",
+      email: "jayesh.vagadiya@darshan.ac.in",
       username: "jayesh_vagadiya",
       employeeId: "FAC2026004",
       department: "Computer Science",
@@ -76,7 +76,7 @@ async function main() {
     },
     {
       fullName: "Arjun Bala",
-      email: "arjun.bala@aura.edu",
+      email: "arjun.bala@darshan.ac.in",
       username: "arjun_bala",
       employeeId: "FAC2026005",
       department: "Computer Science",
@@ -85,7 +85,7 @@ async function main() {
     },
     {
       fullName: "Maulik Trivedi",
-      email: "maulik.trivedi@aura.edu",
+      email: "maulik.trivedi@darshan.ac.in",
       username: "maulik_trivedi",
       employeeId: "FAC2026006",
       department: "Computer Science",
@@ -94,7 +94,7 @@ async function main() {
     },
     {
       fullName: "Mayur Padia",
-      email: "mayur.padia@aura.edu",
+      email: "mayur.padia@darshan.ac.in",
       username: "mayur_padia",
       employeeId: "FAC2026007",
       department: "Computer Science",
@@ -103,7 +103,7 @@ async function main() {
     },
     {
       fullName: "Naimish Vadodariya",
-      email: "naimish.vadodariya@aura.edu",
+      email: "naimish.vadodariya@darshan.ac.in",
       username: "naimish_vadodariya",
       employeeId: "FAC2026008",
       department: "Computer Science",
@@ -112,9 +112,9 @@ async function main() {
     },
     {
       fullName: "Mehul Bhundiya",
-      email: "mehul.bhundiya@aura.edu",
+      email: "mehul.bhundiya@darshan.ac.in",
       username: "mehul_bhundiya",
-      employeeId: "FAC2026009",
+      employeeId: "FAC2026012",
       department: "Computer Science",
       designation: "Assistant Professor",
       subjects: ["Flutter", "Advanced Flutter"],
@@ -164,17 +164,17 @@ async function main() {
       semester: 6,
       faculty: "Firoz Sherasiya",
     },
-    {
-      code: "CS603",
-      name: "Foundations of Algorithms (FOA)",
-      credits: 4,
-      semester: 6,
-      faculty: "Javed Nathani",
-    },
   ];
 
   // Elective Courses
   const electiveCourses = [
+    {
+      code: "CS603",
+      name: "Fundamentals of Accounting (FOA)",
+      credits: 4,
+      semester: 6,
+      faculty: "Javed Nathani",
+    },
     {
       code: "CS604",
       name: "Machine Learning and Deep Learning (MLDL)",
@@ -245,6 +245,13 @@ async function main() {
       semester: 6,
       faculty: "Mehul Bhundiya",
     },
+    {
+      code: "CS614",
+      name: "Mobile Computing and Wireless Communication (MCWC)",
+      credits: 3,
+      semester: 6,
+      faculty: "Dixita Kagathara",
+    },
   ];
 
   const allCourses = [...coreCourses, ...electiveCourses];
@@ -303,88 +310,74 @@ async function main() {
   console.log("✅ Courses created:", courses.length, "courses");
 
   // ── 4. Students ──────────────────────────────────────────────────────────────
-  const students = [];
+  console.log(`📡 Preparing ${studentsData.length} students for deployment...`);
 
-  for (const studentEntry of studentsData) {
-    const [index, enroll, class_, rollno, name, elective1, elective2] =
-      studentEntry;
-
-    // Determine batch
-    const batch = "2023-2027";
+  const studentOperations = studentsData.map((studentEntry) => {
+    const [index, enroll, class_, rollno, name, elective1, elective2] = studentEntry;
+    const batch = class_; // "A1", "A2", etc.
     const semester = 6;
+    const username = name.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+    const email = `${enroll}@darshan.ac.in`;
 
-    // Format username and email
-    const username = name
-      .toLowerCase()
-      .replace(/\s+/g, "_")
-      .replace(/[^a-z0-9_]/g, "");
-    const email = `${username}@aura.edu`;
-
-    // Determine subjects
     const studentSubjects: any[] = [];
-
-    // Add core subjects (ATCC, OS, FOA)
     coreCourses.forEach((coreCourse) => {
       const course = courses.find((c) => c.name === coreCourse.name);
-      if (course) {
-        studentSubjects.push(course);
-      }
+      if (course) studentSubjects.push(course);
     });
 
-    // Add electives
-    if (elective1) {
-      const normalizedElective1 = elective1.trim();
-      let mappedElective1 = normalizedElective1;
-      if (normalizedElective1 === "ASP. NET Core") mappedElective1 = ".NET";
-      if (normalizedElective1 === "Advanced Web Technology")
-        mappedElective1 = "Advanced Web Technologies (AWT)";
-      if (normalizedElective1 === "UI/UX Designing")
-        mappedElective1 = "UI/UX Design";
+    const processElective = (elective: string) => {
+      if (!elective || elective === "Not Given") return;
+      const normalized = elective.trim().toLowerCase();
+      let mappedName = "";
 
-      const course = courses.find(
-        (c) =>
-          c.name.includes(mappedElective1) || mappedElective1.includes(c.name),
-      );
-      if (course) {
-        studentSubjects.push(course);
+      // Elective 1 Mapping
+      if (normalized.includes("web technology") || normalized.includes("awt")) mappedName = "Advanced Web Technologies (AWT)";
+      else if (normalized.includes("ins") || normalized.includes("security")) mappedName = "Information Network Security (INS)";
+      else if (normalized.includes("ui/ux") || normalized.includes("designing")) mappedName = "UI/UX Design";
+      else if (normalized.includes("asp. net core")) mappedName = ".NET";
+      else if (normalized.includes("advanced .net") || normalized.includes("restful apis")) {
+        if (normalized.includes("modern architecture") || normalized.includes("architectures")) mappedName = "Advanced Advanced .NET";
+        else mappedName = "Advanced .NET";
       }
-    }
-
-    if (elective2) {
-      const normalizedElective2 = elective2.trim();
-      let mappedElective2 = normalizedElective2;
-      if (normalizedElective2 === "ASP. NET Core") mappedElective2 = ".NET";
-      if (normalizedElective2 === "Advanced Web Technology")
-        mappedElective2 = "Advanced Web Technologies (AWT)";
-      if (normalizedElective2 === "UI/UX Designing")
-        mappedElective2 = "UI/UX Design";
-
-      const course = courses.find(
-        (c) =>
-          c.name.includes(mappedElective2) || mappedElective2.includes(c.name),
-      );
-      if (course && !studentSubjects.find((s) => s.code === course.code)) {
-        studentSubjects.push(course);
+      else if (normalized.includes("flutter")) {
+        if (normalized.includes("advanced")) mappedName = "Advanced Flutter";
+        else mappedName = "Flutter";
       }
-    }
 
-    // Create student user with profiles and enrollments in one transaction
-    const user = await prisma.users.upsert({
-      where: { email },
-      update: {
-        studentCourses: {
-          set: studentSubjects.map(s => ({ id: s.id }))
-        },
-        studentSubjects: {
-          set: studentSubjects.map(s => ({ id: s.subjectId }))
+      // Elective 2 Mapping
+      else if (normalized.includes("machine learning")) {
+        if (normalized.includes("deep learning") || normalized.includes("mldl")) mappedName = "Machine Learning and Deep Learning (MLDL)";
+        else mappedName = "Machine Learning (ML)";
+      }
+      else if (normalized.includes("mcwc") || normalized.includes("mobile computing")) mappedName = "Mobile Computing and Wireless Communication (MCWC)";
+
+      // Standalone/Other Electives
+      else if (normalized.includes("accounting") || normalized.includes("foa")) mappedName = "Fundamentals of Accounting (FOA)";
+
+      if (mappedName) {
+        const course = courses.find(c => c.name === mappedName);
+        if (course && !studentSubjects.find(s => s.code === course.code)) {
+          studentSubjects.push(course);
         }
-      },
-      create: {
-        username,
+      }
+    };
+
+    processElective(elective1);
+    processElective(elective2);
+
+    return prisma.users.create({
+      data: {
+        username: enroll, // Use enrollment as username
         email,
         passwordHash: studentHash,
         role: "student",
         status: "active",
+        studentCourses: {
+          connect: Array.from(new Set(studentSubjects.map(s => s.id))).map(id => ({ id }))
+        },
+        studentSubjects: {
+          connect: studentSubjects.map((s) => ({ id: s.subjectId })),
+        },
         studentProfile: {
           create: {
             fullName: name,
@@ -394,31 +387,23 @@ async function main() {
             batch,
             currentSemester: semester,
             parentPhone: `91${Math.floor(8000000000 + Math.random() * 1999999999)}`,
-            parentEmail: `parent.${username}@gmail.com`,
+            parentEmail: `parent.${enroll}@darshan.ac.in`,
           },
         },
-        studentCourses: {
-          connect: studentSubjects.map(s => ({ id: s.id }))
-        },
-        studentSubjects: {
-          connect: studentSubjects.map(s => ({ id: s.subjectId }))
-        }
-      },
+      }
     });
+  });
 
-    students.push({
-      user,
-      enroll,
-      name,
-      class: class_,
-      rollno,
-      batch,
-      semester,
-      subjects: studentSubjects,
-    });
+  // Execute in chunks to avoid memory issues or DB connection timeouts
+  const chunkSize = 50;
+  for (let i = 0; i < studentOperations.length; i += chunkSize) {
+    const chunk = studentOperations.slice(i, i + chunkSize);
+    await Promise.all(chunk);
+    process.stdout.write(`⚡ Progress: ${Math.min(i + chunkSize, studentOperations.length)}/${studentOperations.length} students synchronized...\r`);
   }
+  process.stdout.write('\n');
 
-  console.log("✅ Students created:", students.length, "students");
+  console.log("✅ Students created:", studentOperations.length, "students");
 
   console.log("🎉 Seed complete! Core data (Faculty, Courses, Students) is ready. No historical sessions or grades created.");
 }

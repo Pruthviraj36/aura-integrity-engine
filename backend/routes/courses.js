@@ -2,6 +2,7 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const prisma = require("../prisma");
 const authMiddleware = require("../middleware/auth");
+const { requireRole } = authMiddleware;
 
 const router = express.Router();
 
@@ -101,6 +102,7 @@ router.get("/:id", authMiddleware, async (req, res, next) => {
 router.post(
   "/",
   authMiddleware,
+  requireRole(["admin"]),
   [
     body("code").notEmpty().withMessage("Course code is required"),
     body("name").notEmpty().withMessage("Course name is required"),
@@ -112,11 +114,7 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      if (req.user.role !== "admin") {
-        const error = new Error("Forbidden");
-        error.statusCode = 403;
-        throw error;
-      }
+      // Role check handled by requireRole middleware
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) {

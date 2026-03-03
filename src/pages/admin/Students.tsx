@@ -322,7 +322,7 @@ export default function StudentManagement() {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-400 text-[10px] uppercase font-bold">Primary Email</Label>
-                  <Input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="bg-slate-950 border-slate-800" placeholder="student@nit.edu" />
+                  <Input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="bg-slate-950 border-slate-800" placeholder="enroll@darshan.ac.in" />
                 </div>
               </div>
               <div className="space-y-2">

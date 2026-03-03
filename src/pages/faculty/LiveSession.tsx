@@ -138,6 +138,15 @@ export default function LiveSession() {
           <p className="text-sm text-slate-400 font-medium">
             {session?.date && format(new Date(session.date), "MMMM dd, yyyy")} • {session?.startTime} - {session?.endTime}
           </p>
+          {session?.batches && session.batches.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {session.batches.map((b: string) => (
+                <span key={b} className="px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded text-[10px] font-black uppercase">
+                  Batch {b}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex gap-3">
           {!isCompleted && (

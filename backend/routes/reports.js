@@ -2,15 +2,16 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const prisma = require("../prisma");
 const authMiddleware = require("../middleware/auth");
+const { requireRole } = authMiddleware;
 
 const router = express.Router();
 
 // @route   GET /api/reports/attendance
 // @desc    Get attendance reports
 // @access  Admin, Faculty
-router.get("/attendance", authMiddleware, async (req, res, next) => {
+router.get("/attendance", authMiddleware, requireRole(["admin", "faculty", "student"]), async (req, res, next) => {
   try {
-    const { courseId, studentId, dateFrom, dateTo, status } = req.query;
+    const { courseId, studentId, batch, dateFrom, dateTo, status } = req.query;
 
     const where = {};
 
@@ -24,6 +25,13 @@ router.get("/attendance", authMiddleware, async (req, res, next) => {
       where.session = { ...where.session, courseId: parseInt(courseId) };
     }
     if (targetStudentId) where.studentId = targetStudentId;
+    if (batch) {
+      where.student = {
+        studentProfile: {
+          batch: batch
+        }
+      };
+    }
     if (dateFrom && dateTo) {
       where.session = {
         ...where.session,
@@ -58,25 +66,45 @@ router.get("/attendance", authMiddleware, async (req, res, next) => {
       orderBy: { timestamp: "desc" },
     });
 
-    // Calculate statistics
-    const totalRecords = reports.length;
-    const presentCount = reports.filter((r) => r.status === "present").length;
-    const absentCount = reports.filter((r) => r.status === "absent").length;
-    const lateCount = reports.filter((r) => r.status === "late").length;
-    const excusedCount = reports.filter((r) => r.status === "excused").length;
+    // Optimized statistics using aggregation
+    const statistics = await prisma.attendance.aggregate({
+      where,
+      _count: {
+        id: true,
+      },
+    });
 
-    const attendanceRate =
-      totalRecords > 0 ? (presentCount / totalRecords) * 100 : 0;
+    const statusCounts = await prisma.attendance.groupBy({
+      by: ['status'],
+      where,
+      _count: {
+        status: true,
+      },
+    });
+
+    const counts = {
+      present: 0,
+      absent: 0,
+      late: 0,
+      excused: 0,
+    };
+
+    statusCounts.forEach(c => {
+      counts[c.status] = c._count.status;
+    });
+
+    const totalRecords = statistics._count.id;
+    const attendanceRate = totalRecords > 0 ? (counts.present / totalRecords) * 100 : 0;
 
     res.json({
       success: true,
       data: {
         statistics: {
           totalRecords,
-          presentCount,
-          absentCount,
-          lateCount,
-          excusedCount,
+          presentCount: counts.present,
+          absentCount: counts.absent,
+          lateCount: counts.late,
+          excusedCount: counts.excused,
           attendanceRate: parseFloat(attendanceRate.toFixed(2)),
         },
         reports,
@@ -447,7 +475,7 @@ router.get("/department", authMiddleware, async (req, res, next) => {
 // @route   GET /api/reports
 // @desc    Get all generated reports
 // @access  Admin, Faculty
-router.get("/", authMiddleware, async (req, res, next) => {
+router.get("/", authMiddleware, requireRole(["admin", "faculty"]), async (req, res, next) => {
   try {
     const where = {};
     if (req.user.role === "faculty") {
@@ -471,7 +499,7 @@ router.get("/", authMiddleware, async (req, res, next) => {
 // @route   POST /api/reports/generate
 // @desc    Generate a new report
 // @access  Admin, Faculty
-router.post("/generate", authMiddleware, async (req, res, next) => {
+router.post("/generate", authMiddleware, requireRole(["admin", "faculty"]), async (req, res, next) => {
   try {
     const { type, filters: reqFilters, format = "CSV" } = req.body;
     const fs = require("fs");

@@ -18,6 +18,7 @@ export default function CreateSession() {
   const [subjectId, setSubjectId] = useState("");
   const [topic, setTopic] = useState("");
   const [room, setRoom] = useState("");
+  const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
 
   const { data: coursesData, isLoading: isCoursesLoading } = useQuery({
     queryKey: ["faculty", "my-courses", user?.id],
@@ -56,8 +57,8 @@ export default function CreateSession() {
   });
 
   const handleGenerate = () => {
-    if (!courseId || !topic) {
-      toast.error("Protocol violation: Course and Topic required");
+    if (!courseId || !topic || selectedBatches.length === 0) {
+      toast.error("Protocol violation: Course, Topic, and at least one Batch required");
       return;
     }
 
@@ -71,6 +72,7 @@ export default function CreateSession() {
       ...(subjectId && { subjectId: parseInt(subjectId) }),
       topic,
       room,
+      batches: selectedBatches,
       date: now.toISOString(),
       startTime,
       endTime,
@@ -153,6 +155,30 @@ export default function CreateSession() {
                   </Select>
                 )}
               </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Target Batches</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {["A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11"].map((batch) => (
+                    <div
+                      key={batch}
+                      onClick={() => {
+                        const newBatches = selectedBatches.includes(batch)
+                          ? selectedBatches.filter(b => b !== batch)
+                          : [...selectedBatches, batch];
+                        setSelectedBatches(newBatches);
+                        if (newBatches.length > 0 && topic) setStep(3);
+                      }}
+                      className={`cursor-pointer h-10 flex items-center justify-center rounded-lg border font-black text-xs transition-all duration-300 ${selectedBatches.includes(batch)
+                        ? "bg-primary/20 border-primary text-primary shadow-[0_0_10px_rgba(34,211,238,0.2)]"
+                        : "bg-slate-950/50 border-slate-800 text-slate-500 hover:border-slate-700"
+                        }`}
+                    >
+                      {batch}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Session Topic</label>
                 <Input
@@ -161,7 +187,7 @@ export default function CreateSession() {
                   value={topic}
                   onChange={(e) => {
                     setTopic(e.target.value);
-                    if (e.target.value.trim()) setStep(Math.max(step, 3));
+                    if (e.target.value.trim() && selectedBatches.length > 0) setStep(3);
                   }}
                 />
               </div>
@@ -172,17 +198,28 @@ export default function CreateSession() {
             <div className="space-y-4 animate-in fade-in zoom-in duration-500 text-center pt-4">
               <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl text-left space-y-1 mb-4">
                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.25em] text-center mb-3">Ready for Deployment</p>
+                <p className="text-white font-mono text-sm leading-relaxed">
+                  <span className="text-slate-500 text-[10px] uppercase block mb-1">Target Batches</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {selectedBatches.map(b => (
+                      <span key={b} className="px-2 py-0.5 bg-primary/20 text-primary border border-primary/30 rounded text-[10px] font-black">
+                        {b}
+                      </span>
+                    ))}
+                  </div>
+                </p>
+                <div className="h-px bg-slate-800/50 my-3" />
                 <p className="text-slate-300 font-mono text-sm">
-                  <span className="text-slate-500 text-xs uppercase">Course: </span>{selectedCourse?.code} — {selectedCourse?.name}
+                  <span className="text-slate-500 text-xs uppercase italic">Course: </span>{selectedCourse?.code} — {selectedCourse?.name}
                 </p>
                 {subjectId && courseSubjects.find((s: any) => s.id.toString() === subjectId) && (
                   <p className="text-slate-300 font-mono text-sm">
-                    <span className="text-slate-500 text-xs uppercase">Subject: </span>
+                    <span className="text-slate-500 text-xs uppercase italic">Subject: </span>
                     {courseSubjects.find((s: any) => s.id.toString() === subjectId)?.name}
                   </p>
                 )}
                 <p className="text-slate-300 font-mono text-sm">
-                  <span className="text-slate-500 text-xs uppercase">Topic: </span>{topic}
+                  <span className="text-slate-500 text-xs uppercase italic">Topic: </span>{topic}
                 </p>
               </div>
               <Button

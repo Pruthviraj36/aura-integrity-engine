@@ -78,7 +78,18 @@ export default function AttendanceRecords() {
                     {s.course?.code}
                     <span className="block text-[10px] font-normal text-slate-500">{s.course?.name}</span>
                   </TableCell>
-                  <TableCell className="text-sm text-slate-300 italic max-w-[200px] truncate">{s.topic}</TableCell>
+                  <TableCell className="max-w-[200px] py-3">
+                    <span className="text-sm text-slate-300 italic block truncate">{s.topic}</span>
+                    {s.batches && s.batches.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {s.batches.map((b: string) => (
+                          <span key={b} className="px-1.5 py-0.5 bg-slate-800 text-[9px] text-slate-400 border border-slate-700 rounded font-bold">
+                            {b}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="text-[11px] text-slate-500 font-mono">ROOM: {s.room || "—"}</TableCell>
                   <TableCell className="text-xs font-mono font-bold text-primary bg-primary/5 px-2 py-1 rounded w-fit">
                     {s.presentCount || 0}/{s.totalStudents || 0}

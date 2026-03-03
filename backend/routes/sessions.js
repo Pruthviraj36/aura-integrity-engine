@@ -2,6 +2,7 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const prisma = require("../prisma");
 const authMiddleware = require("../middleware/auth");
+const { requireRole } = authMiddleware;
 
 const router = express.Router();
 
@@ -43,11 +44,17 @@ router.get("/", authMiddleware, async (req, res, next) => {
         skip,
         take: parseInt(limit),
         include: {
-          course: true,
-          faculty: true,
-          subject: true,
+          course: {
+            select: { id: true, name: true, code: true }
+          },
+          faculty: {
+            select: { id: true, username: true, facultyProfile: { select: { fullName: true } } }
+          },
+          subject: {
+            select: { id: true, name: true }
+          },
           qrCode: true,
-          attendanceRecords: true,
+          // attendanceRecords removed from list for performance
         },
         orderBy: { date: "desc" },
       }),
@@ -93,17 +100,17 @@ router.get("/:id", authMiddleware, async (req, res, next) => {
       throw error;
     }
 
-    // Check if student has access to this session
+    // Optimized student access check
     if (req.user.role === "student") {
-      const course = await prisma.course.findUnique({
-        where: { id: session.courseId },
-        include: { students: true },
+      const isEnrolled = await prisma.course.findFirst({
+        where: {
+          id: session.courseId,
+          students: { some: { id: req.user.id } }
+        },
+        select: { id: true }
       });
 
-      const hasAccess = course.students.some(
-        (student) => student.id === req.user.id,
-      );
-      if (!hasAccess) {
+      if (!isEnrolled) {
         const error = new Error("Forbidden");
         error.statusCode = 403;
         throw error;
@@ -125,6 +132,7 @@ router.get("/:id", authMiddleware, async (req, res, next) => {
 router.post(
   "/",
   authMiddleware,
+  requireRole(["admin", "faculty"]),
   [
     body("courseId").isInt().withMessage("Course ID is required"),
     body("topic").notEmpty().withMessage("Topic is required"),
@@ -134,11 +142,7 @@ router.post(
   ],
   async (req, res, next) => {
     try {
-      if (req.user.role !== "admin" && req.user.role !== "faculty") {
-        const error = new Error("Forbidden");
-        error.statusCode = 403;
-        throw error;
-      }
+      // Role check handled by requireRole middleware
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -159,6 +163,7 @@ router.post(
         endTime,
         duration,
         status,
+        batches,
       } = req.body;
 
       // Check if faculty has access to this course
@@ -187,13 +192,14 @@ router.post(
           endTime,
           duration: duration || 60,
           status: status || "scheduled",
+          batches: batches || [],
         },
         include: {
-          course: true,
-          faculty: true,
-          subject: true,
+          course: { select: { id: true, name: true, code: true } },
+          faculty: { select: { id: true, username: true, facultyProfile: { select: { fullName: true } } } },
+          subject: { select: { id: true, name: true } },
           qrCode: true,
-          attendanceRecords: true,
+          // New session has 0 records, no need to include
         },
       });
 
@@ -241,6 +247,7 @@ router.put("/:id", authMiddleware, async (req, res, next) => {
       endTime,
       duration,
       status,
+      batches,
     } = req.body;
 
     const updatedSession = await prisma.session.update({
@@ -256,6 +263,7 @@ router.put("/:id", authMiddleware, async (req, res, next) => {
         ...(endTime && { endTime }),
         ...(duration && { duration }),
         ...(status && { status }),
+        ...(batches && { batches }),
       },
       include: {
         course: true,

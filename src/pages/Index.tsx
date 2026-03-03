@@ -121,7 +121,7 @@ const Index = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="name@nit.edu"
+                    placeholder="23010101001@darshan.ac.in"
                     className="pl-10 bg-slate-950/50 border-slate-800 text-white focus:ring-primary"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

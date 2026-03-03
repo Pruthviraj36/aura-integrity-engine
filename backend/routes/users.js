@@ -2,13 +2,14 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const prisma = require("../prisma");
 const authMiddleware = require("../middleware/auth");
+const { requireRole } = authMiddleware;
 
 const router = express.Router();
 
 // @route   POST /api/users/students
 // @desc    Create a new student with profile
 // @access  Admin
-router.post("/students", authMiddleware, async (req, res, next) => {
+router.post("/students", authMiddleware, requireRole(["admin"]), async (req, res, next) => {
   try {
     if (req.user.role !== "admin") {
       const error = new Error("Forbidden");
@@ -60,7 +61,7 @@ router.post("/students", authMiddleware, async (req, res, next) => {
 // @route   POST /api/users/faculty
 // @desc    Create a new faculty with profile
 // @access  Admin
-router.post("/faculty", authMiddleware, async (req, res, next) => {
+router.post("/faculty", authMiddleware, requireRole(["admin"]), async (req, res, next) => {
   try {
     if (req.user.role !== "admin") {
       const error = new Error("Forbidden");

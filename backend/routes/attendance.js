@@ -2,6 +2,7 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const prisma = require("../prisma");
 const authMiddleware = require("../middleware/auth");
+const { requireRole } = authMiddleware;
 
 const router = express.Router();
 
@@ -36,13 +37,17 @@ router.get("/", authMiddleware, async (req, res, next) => {
         skip,
         take: parseInt(limit),
         include: {
-          student: { include: { studentProfile: true } },
+          student: {
+            select: { id: true, username: true, studentProfile: { select: { fullName: true, rollNumber: true, enrollmentNumber: true } } }
+          },
           session: {
-            include: {
-              course: true,
-              faculty: true,
-              subject: true,
-            },
+            select: {
+              id: true,
+              topic: true,
+              date: true,
+              course: { select: { name: true, code: true } },
+              subject: { select: { name: true } }
+            }
           },
         },
         orderBy: { timestamp: "desc" },
@@ -315,13 +320,9 @@ router.put("/:id", authMiddleware, async (req, res, next) => {
 // @route   DELETE /api/attendance/:id
 // @desc    Delete attendance record
 // @access  Admin, Faculty
-router.delete("/:id", authMiddleware, async (req, res, next) => {
+router.delete("/:id", authMiddleware, requireRole(["admin", "faculty"]), async (req, res, next) => {
   try {
-    if (req.user.role !== "admin" && req.user.role !== "faculty") {
-      const error = new Error("Forbidden");
-      error.statusCode = 403;
-      throw error;
-    }
+    // Role check handled by requireRole middleware
 
     const attendance = await prisma.attendance.findUnique({
       where: { id: parseInt(req.params.id) },
@@ -373,14 +374,11 @@ router.delete("/:id", authMiddleware, async (req, res, next) => {
 router.post(
   "/qr",
   authMiddleware,
+  requireRole(["student"]),
   [body("qrCode").notEmpty().withMessage("QR code is required")],
   async (req, res, next) => {
     try {
-      if (req.user.role !== "student") {
-        const error = new Error("Forbidden");
-        error.statusCode = 403;
-        throw error;
-      }
+      // Role check handled by requireRole middleware
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -402,7 +400,21 @@ router.post(
         include: {
           session: {
             include: {
-              course: { include: { students: true } },
+              course: {
+                select: {
+                  id: true,
+                  students: {
+                    where: { id: req.user.id },
+                    select: {
+                      id: true,
+                      studentProfile: { select: { batch: true } },
+                      studentSubjects: { select: { id: true } }
+                    }
+                  }
+                }
+              },
+              batches: true,
+              subjectId: true,
             },
           },
         },
@@ -414,32 +426,16 @@ router.post(
         throw error;
       }
 
-      // Check if QR code has reached maximum scans
-      if (qrCodeData.scannedCount >= qrCodeData.maxScans) {
-        const error = new Error("QR code has reached maximum scans");
-        error.statusCode = 400;
-        throw error;
-      }
-
-      // Check if student is enrolled in the course
-      const isEnrolledInCourse = qrCodeData.session.course.students.some(
-        (student) => student.id === req.user.id,
-      );
-
-      if (!isEnrolledInCourse) {
+      // Combined enrollment check
+      const studentData = qrCodeData.session.course.students[0];
+      if (!studentData) {
         const error = new Error("Student is not enrolled in this course");
         error.statusCode = 400;
         throw error;
       }
 
-      // Check if student is enrolled in the specific subject
       if (qrCodeData.session.subjectId) {
-        const student = await prisma.users.findUnique({
-          where: { id: req.user.id },
-          include: { studentSubjects: true }
-        });
-
-        const isEnrolledInSubject = (student.studentSubjects || []).some(
+        const isEnrolledInSubject = (studentData.studentSubjects || []).some(
           (s) => s.id === qrCodeData.session.subjectId
         );
 
@@ -448,6 +444,16 @@ router.post(
           error.statusCode = 400;
           throw error;
         }
+      }
+
+      // 🛡️ Batch-Wise Access Control
+      const sessionBatches = qrCodeData.session.batches || [];
+      const studentBatch = studentData.studentProfile?.batch;
+
+      if (sessionBatches.length > 0 && (!studentBatch || !sessionBatches.includes(studentBatch))) {
+        const error = new Error(`Protocol Violation: This session is locked to BATCHES [${sessionBatches.join(", ")}]. Authorized batch access only.`);
+        error.statusCode = 403;
+        throw error;
       }
 
       // Check if attendance already exists
