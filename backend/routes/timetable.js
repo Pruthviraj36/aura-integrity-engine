@@ -178,13 +178,16 @@ router.post(
         throw error;
       }
 
-      // Check if faculty is assigned to this course
+      // Verify if faculty is assigned to either the course or the specific subject
       const course = await prisma.course.findUnique({
         where: { id: courseId },
       });
 
-      if (Number(course.facultyId) !== Number(facultyId)) {
-        const error = new Error("Faculty is not assigned to this course");
+      const isSubjectFaculty = Number(subject.facultyId) === Number(facultyId);
+      const isCourseLead = Number(course.facultyId) === Number(facultyId);
+
+      if (!isSubjectFaculty && !isCourseLead) {
+        const error = new Error("Faculty is not assigned to this subject or course");
         error.statusCode = 400;
         throw error;
       }

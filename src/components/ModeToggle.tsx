@@ -1,36 +1,42 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
 
 export function ModeToggle() {
-    const { setTheme } = useTheme();
+    const { theme, setTheme, resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full glass-card opacity-50" disabled />;
+    }
+
+    const toggleTheme = () => {
+        setTheme(theme === "dark" ? "light" : "dark");
+    };
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 border border-border/50 bg-background/50 backdrop-blur-sm hover:bg-accent">
-                    <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-100 dark:scale-0" />
-                    <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-100 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                    <span className="sr-only">Toggle theme</span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                    Light
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                    Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                    System
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="relative h-10 w-10 rounded-full glass-card aura-glow hover:bg-primary/10 transition-all duration-500 group overflow-hidden border-none"
+        >
+            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+            <Sun className="h-[1.4rem] w-[1.4rem] transition-all duration-700 
+                rotate-0 scale-100 dark:-rotate-180 dark:scale-0 text-amber-500"
+            />
+
+            <Moon className="absolute h-[1.4rem] w-[1.4rem] transition-all duration-700 
+                -rotate-180 scale-0 dark:rotate-0 dark:scale-100 text-blue-400"
+            />
+
+            <span className="sr-only">Toggle theme</span>
+        </Button>
     );
 }

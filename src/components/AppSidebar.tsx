@@ -57,7 +57,7 @@ export function AppSidebar() {
   const config = roleConfig[role];
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/50">
+    <Sidebar collapsible="icon" className="border-r border-border/10 glass-panel shadow-2xl">
       <SidebarHeader className="p-4">
         {!collapsed && (
           <div className="flex items-center justify-between mb-4">
@@ -73,9 +73,9 @@ export function AppSidebar() {
         )}
         {collapsed && <div className="mb-2 h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">A</div>}
         {!collapsed && (
-          <div className="px-2 py-1.5 rounded-md bg-primary/5 border border-primary/10 mb-2">
-            <p className="text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-1.5">
-              <Shield className="h-3 w-3" /> {config.label} Access
+          <div className="px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 mb-2 aura-glow">
+            <p className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+              <Shield className="h-3.5 w-3.5" /> {config.label} Registry
             </p>
           </div>
         )}
@@ -105,23 +105,23 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4">
         {!collapsed && user && (
-          <div className="rounded-lg bg-secondary/30 border border-border/30 p-3">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/30">
+          <div className="rounded-2xl glass-card aura-glow p-4 border-none bg-primary/5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.2)]">
                 {(user.profile?.fullName || user.username).split(" ").map((n: string) => n[0]).join("").toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-bold truncate text-slate-200">
+                <p className="text-[11px] font-black truncate text-foreground aura-text-glow">
                   {user.profile?.fullName || user.username}
                 </p>
-                <p className="text-[9px] text-muted-foreground truncate uppercase tracking-tighter">
+                <p className="text-[9px] text-muted-foreground truncate uppercase tracking-[0.1em] font-mono opacity-70">
                   {user.profile?.department || (role === "admin" ? "Institutional Oversight" : "Unassigned Sector")}
                 </p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10"
+                className="h-8 w-8 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
                 onClick={() => logout()}
               >
                 <LogOut className="h-4 w-4" />

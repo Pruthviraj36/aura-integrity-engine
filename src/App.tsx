@@ -43,7 +43,7 @@ const AppContent = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#0B0E14] text-white">
+      <div className="flex h-screen items-center justify-center bg-background text-foreground">
         <div className="animate-pulse flex flex-col items-center gap-4">
           <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
           <p className="text-sm font-medium">Initializing Engine...</p>
@@ -104,7 +104,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="dark" storageKey="aura-theme">
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="aura-theme">
       <TooltipProvider>
         <AuthProvider>
           <Toaster />

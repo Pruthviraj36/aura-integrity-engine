@@ -64,7 +64,7 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen relative overflow-hidden bg-[#020817]">
+    <div className="flex min-h-screen relative overflow-hidden bg-background text-foreground transition-colors duration-300">
       {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
@@ -76,16 +76,16 @@ const Index = () => {
             <div className="p-2 bg-primary/10 rounded-xl border border-primary/20">
               <ShieldCheck className="w-8 h-8 text-primary" />
             </div>
-            <span className="text-2xl font-bold tracking-tighter text-white">AURA INTEGRITY</span>
+            <span className="text-2xl font-bold tracking-tighter text-foreground">AURA INTEGRITY</span>
           </div>
-          <h1 className="text-5xl font-extrabold tracking-tight text-white mb-6 animate-in fade-in slide-in-from-left duration-700 delay-100">
+          <h1 className="text-5xl font-extrabold tracking-tight text-foreground mb-6 animate-in fade-in slide-in-from-left duration-700 delay-100">
             The Next-Gen <span className="text-primary italic">Attendance</span> Engine.
           </h1>
-          <p className="text-lg text-slate-400 mb-8 animate-in fade-in slide-in-from-left duration-700 delay-200">
+          <p className="text-lg text-muted-foreground mb-8 animate-in fade-in slide-in-from-left duration-700 delay-200">
             Secure, transparent, and seamless. Monitor academic integrity with real-time analytics and decentralized proof of presence.
           </p>
           <div className="flex gap-4 animate-in fade-in slide-in-from-left duration-700 delay-300">
-            <p className="text-sm text-slate-400 self-center italic">
+            <p className="text-sm text-muted-foreground self-center italic">
               Empowering academic excellence through transparency.
             </p>
           </div>
@@ -94,7 +94,7 @@ const Index = () => {
 
       {/* Right Section - Login Form */}
       <div className="flex-1 flex items-center justify-center p-6 z-10">
-        <Card className="w-full max-w-md bg-slate-900/50 border-slate-800/50 backdrop-blur-xl animate-in zoom-in duration-500">
+        <Card className="w-full max-w-md bg-card border-border backdrop-blur-xl animate-in zoom-in duration-500 shadow-2xl">
           <CardHeader className="space-y-1">
             <div className="flex justify-center mb-4 lg:hidden">
               <ShieldCheck className="w-12 h-12 text-primary" />
@@ -102,27 +102,27 @@ const Index = () => {
             <CardTitle className="text-2xl font-bold text-center">Secure Sign In</CardTitle>
             <div className="flex justify-center items-center gap-2 mt-2">
               <div className={`h-1.5 w-1.5 rounded-full animate-pulse ${apiStatus === "online" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" :
-                apiStatus === "offline" ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-slate-500"
+                apiStatus === "offline" ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "bg-muted-foreground"
                 }`} />
-              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-500">
+              <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
                 Backend {apiStatus}
               </span>
             </div>
-            <CardDescription className="text-center text-slate-400 mt-2">
+            <CardDescription className="text-center text-muted-foreground mt-2">
               Enter your institutional credentials to continue
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email" className="text-slate-300">Email</Label>
+                <Label htmlFor="email" className="text-foreground/80">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="23010101001@darshan.ac.in"
-                    className="pl-10 bg-slate-950/50 border-slate-800 text-white focus:ring-primary"
+                    className="pl-10 bg-background border-border text-foreground focus:ring-primary"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -131,17 +131,17 @@ const Index = () => {
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" title="password" className="text-slate-300">Password</Label>
+                  <Label htmlFor="password" title="password" className="text-foreground/80">Password</Label>
                   <Button variant="link" className="px-0 font-normal text-xs text-primary/70 hover:text-primary">
                     Forgot passphrase?
                   </Button>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    className="pl-10 bg-slate-950/50 border-slate-800 text-white focus:ring-primary"
+                    className="pl-10 bg-background border-border text-foreground focus:ring-primary"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -159,13 +159,13 @@ const Index = () => {
               </Button>
               <div className="relative w-full">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-slate-800" />
+                  <span className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-[#020817] px-2 text-slate-500 italic">Integrity Protocol Verified</span>
+                  <span className="bg-card px-2 text-muted-foreground italic">Integrity Protocol Verified</span>
                 </div>
               </div>
-              <p className="text-center text-xs text-slate-500">
+              <p className="text-center text-xs text-muted-foreground">
                 Unauthorized access is strictly prohibited and logged.
               </p>
             </CardFooter>

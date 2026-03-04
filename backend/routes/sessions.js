@@ -117,9 +117,13 @@ router.get("/:id", authMiddleware, async (req, res, next) => {
       }
     }
 
+    const { getLocalIp } = require("../utils/network");
     res.json({
       success: true,
-      data: { session },
+      data: {
+        session,
+        networkIp: getLocalIp()
+      },
     });
   } catch (error) {
     next(error);
@@ -166,14 +170,26 @@ router.post(
         batches,
       } = req.body;
 
-      // Check if faculty has access to this course
+      // Check if faculty has access to this course or specialized subject
       if (req.user.role === "faculty") {
         const course = await prisma.course.findUnique({
           where: { id: courseId },
+          include: {
+            subjects: subjectId ? { where: { id: subjectId } } : false
+          }
         });
 
-        if (!course || course.facultyId !== req.user.id) {
-          const error = new Error("Forbidden");
+        if (!course) {
+          const error = new Error("Course not found");
+          error.statusCode = 404;
+          throw error;
+        }
+
+        const isCourseLead = course.facultyId === req.user.id;
+        const isSubjectTeacher = subjectId && course.subjects.some(s => s.facultyId === req.user.id);
+
+        if (!isCourseLead && !isSubjectTeacher) {
+          const error = new Error("Forbidden: You are not authorized to create a session for this course/subject");
           error.statusCode = 403;
           throw error;
         }
@@ -229,11 +245,20 @@ router.put("/:id", authMiddleware, async (req, res, next) => {
       throw error;
     }
 
-    // Check if user has access to update this session
-    if (req.user.role === "faculty" && session.facultyId !== req.user.id) {
-      const error = new Error("Forbidden");
-      error.statusCode = 403;
-      throw error;
+    // Check if user has access to update this session (Creator or Course Lead)
+    if (req.user.role === "faculty") {
+      const isCreator = session.facultyId === req.user.id;
+      const course = await prisma.course.findUnique({
+        where: { id: session.courseId },
+        select: { facultyId: true }
+      });
+      const isCourseLead = course?.facultyId === req.user.id;
+
+      if (!isCreator && !isCourseLead) {
+        const error = new Error("Forbidden: You are not authorized to update this session");
+        error.statusCode = 403;
+        throw error;
+      }
     }
 
     const {
@@ -299,11 +324,20 @@ router.delete("/:id", authMiddleware, async (req, res, next) => {
       throw error;
     }
 
-    // Check if user has access to delete this session
-    if (req.user.role === "faculty" && session.facultyId !== req.user.id) {
-      const error = new Error("Forbidden");
-      error.statusCode = 403;
-      throw error;
+    // Check if user has access to delete this session (Creator or Course Lead)
+    if (req.user.role === "faculty") {
+      const isCreator = session.facultyId === req.user.id;
+      const course = await prisma.course.findUnique({
+        where: { id: session.courseId },
+        select: { facultyId: true }
+      });
+      const isCourseLead = course?.facultyId === req.user.id;
+
+      if (!isCreator && !isCourseLead) {
+        const error = new Error("Forbidden: You are not authorized to delete this session");
+        error.statusCode = 403;
+        throw error;
+      }
     }
 
     await prisma.session.delete({
@@ -334,11 +368,20 @@ router.post("/:id/qr", authMiddleware, async (req, res, next) => {
       throw error;
     }
 
-    // Check if user has access
-    if (req.user.role === "faculty" && session.facultyId !== req.user.id) {
-      const error = new Error("Forbidden");
-      error.statusCode = 403;
-      throw error;
+    // Check if user has access (Creator or Course Lead)
+    if (req.user.role === "faculty") {
+      const isCreator = session.facultyId === req.user.id;
+      const course = await prisma.course.findUnique({
+        where: { id: session.courseId },
+        select: { facultyId: true }
+      });
+      const isCourseLead = course?.facultyId === req.user.id;
+
+      if (!isCreator && !isCourseLead) {
+        const error = new Error("Forbidden: You are not authorized to generate QR for this session");
+        error.statusCode = 403;
+        throw error;
+      }
     }
 
     // Generate QR code

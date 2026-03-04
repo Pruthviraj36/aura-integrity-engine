@@ -149,16 +149,24 @@
 
 /* Premium UI Utilities */
 .glass-panel {
-  @apply backdrop-blur-md border border-white/5 shadow-2xl;
+  @apply backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-2xl transition-all duration-300;
   background: var(--glass-bg);
 }
 
+.glass-card {
+  @apply backdrop-blur-md bg-card/40 border border-white/10 dark:border-white/5 shadow-lg hover:shadow-primary/5 transition-all duration-300;
+}
+
 .aura-glow {
-  box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.2);
+  box-shadow: 0 0 50px -12px hsl(var(--primary) / 0.25);
 }
 
 .aura-text-glow {
-  text-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+  text-shadow: 0 0 15px hsl(var(--primary) / 0.5);
+}
+
+.grad-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400;
 }
 
 @keyframes pulse-aura {

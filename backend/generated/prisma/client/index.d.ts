@@ -9114,7 +9114,9 @@ export namespace Prisma {
   export type SubjectMinAggregateOutputType = {
     id: number | null
     courseId: number | null
+    code: string | null
     name: string | null
+    type: string | null
     description: string | null
     credits: number | null
     totalClasses: number | null
@@ -9126,7 +9128,9 @@ export namespace Prisma {
   export type SubjectMaxAggregateOutputType = {
     id: number | null
     courseId: number | null
+    code: string | null
     name: string | null
+    type: string | null
     description: string | null
     credits: number | null
     totalClasses: number | null
@@ -9138,7 +9142,9 @@ export namespace Prisma {
   export type SubjectCountAggregateOutputType = {
     id: number
     courseId: number
+    code: number
     name: number
+    type: number
     description: number
     credits: number
     totalClasses: number
@@ -9168,7 +9174,9 @@ export namespace Prisma {
   export type SubjectMinAggregateInputType = {
     id?: true
     courseId?: true
+    code?: true
     name?: true
+    type?: true
     description?: true
     credits?: true
     totalClasses?: true
@@ -9180,7 +9188,9 @@ export namespace Prisma {
   export type SubjectMaxAggregateInputType = {
     id?: true
     courseId?: true
+    code?: true
     name?: true
+    type?: true
     description?: true
     credits?: true
     totalClasses?: true
@@ -9192,7 +9202,9 @@ export namespace Prisma {
   export type SubjectCountAggregateInputType = {
     id?: true
     courseId?: true
+    code?: true
     name?: true
+    type?: true
     description?: true
     credits?: true
     totalClasses?: true
@@ -9291,7 +9303,9 @@ export namespace Prisma {
   export type SubjectGroupByOutputType = {
     id: number
     courseId: number
+    code: string | null
     name: string
+    type: string
     description: string | null
     credits: number
     totalClasses: number
@@ -9322,7 +9336,9 @@ export namespace Prisma {
   export type SubjectSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     courseId?: boolean
+    code?: boolean
     name?: boolean
+    type?: boolean
     description?: boolean
     credits?: boolean
     totalClasses?: boolean
@@ -9341,7 +9357,9 @@ export namespace Prisma {
   export type SubjectSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     courseId?: boolean
+    code?: boolean
     name?: boolean
+    type?: boolean
     description?: boolean
     credits?: boolean
     totalClasses?: boolean
@@ -9355,7 +9373,9 @@ export namespace Prisma {
   export type SubjectSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     courseId?: boolean
+    code?: boolean
     name?: boolean
+    type?: boolean
     description?: boolean
     credits?: boolean
     totalClasses?: boolean
@@ -9369,7 +9389,9 @@ export namespace Prisma {
   export type SubjectSelectScalar = {
     id?: boolean
     courseId?: boolean
+    code?: boolean
     name?: boolean
+    type?: boolean
     description?: boolean
     credits?: boolean
     totalClasses?: boolean
@@ -9378,7 +9400,7 @@ export namespace Prisma {
     facultyId?: boolean
   }
 
-  export type SubjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "courseId" | "name" | "description" | "credits" | "totalClasses" | "createdAt" | "updatedAt" | "facultyId", ExtArgs["result"]["subject"]>
+  export type SubjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "courseId" | "code" | "name" | "type" | "description" | "credits" | "totalClasses" | "createdAt" | "updatedAt" | "facultyId", ExtArgs["result"]["subject"]>
   export type SubjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     course?: boolean | CourseDefaultArgs<ExtArgs>
     faculty?: boolean | Subject$facultyArgs<ExtArgs>
@@ -9410,7 +9432,9 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       courseId: number
+      code: string | null
       name: string
+      type: string
       description: string | null
       credits: number
       totalClasses: number
@@ -9848,7 +9872,9 @@ export namespace Prisma {
   interface SubjectFieldRefs {
     readonly id: FieldRef<"Subject", 'Int'>
     readonly courseId: FieldRef<"Subject", 'Int'>
+    readonly code: FieldRef<"Subject", 'String'>
     readonly name: FieldRef<"Subject", 'String'>
+    readonly type: FieldRef<"Subject", 'String'>
     readonly description: FieldRef<"Subject", 'String'>
     readonly credits: FieldRef<"Subject", 'Int'>
     readonly totalClasses: FieldRef<"Subject", 'Int'>
@@ -22580,7 +22606,9 @@ export namespace Prisma {
   export const SubjectScalarFieldEnum: {
     id: 'id',
     courseId: 'courseId',
+    code: 'code',
     name: 'name',
+    type: 'type',
     description: 'description',
     credits: 'credits',
     totalClasses: 'totalClasses',
@@ -23399,7 +23427,9 @@ export namespace Prisma {
     NOT?: SubjectWhereInput | SubjectWhereInput[]
     id?: IntFilter<"Subject"> | number
     courseId?: IntFilter<"Subject"> | number
+    code?: StringNullableFilter<"Subject"> | string | null
     name?: StringFilter<"Subject"> | string
+    type?: StringFilter<"Subject"> | string
     description?: StringNullableFilter<"Subject"> | string | null
     credits?: IntFilter<"Subject"> | number
     totalClasses?: IntFilter<"Subject"> | number
@@ -23417,7 +23447,9 @@ export namespace Prisma {
   export type SubjectOrderByWithRelationInput = {
     id?: SortOrder
     courseId?: SortOrder
+    code?: SortOrderInput | SortOrder
     name?: SortOrder
+    type?: SortOrder
     description?: SortOrderInput | SortOrder
     credits?: SortOrder
     totalClasses?: SortOrder
@@ -23439,7 +23471,9 @@ export namespace Prisma {
     OR?: SubjectWhereInput[]
     NOT?: SubjectWhereInput | SubjectWhereInput[]
     courseId?: IntFilter<"Subject"> | number
+    code?: StringNullableFilter<"Subject"> | string | null
     name?: StringFilter<"Subject"> | string
+    type?: StringFilter<"Subject"> | string
     description?: StringNullableFilter<"Subject"> | string | null
     credits?: IntFilter<"Subject"> | number
     totalClasses?: IntFilter<"Subject"> | number
@@ -23457,7 +23491,9 @@ export namespace Prisma {
   export type SubjectOrderByWithAggregationInput = {
     id?: SortOrder
     courseId?: SortOrder
+    code?: SortOrderInput | SortOrder
     name?: SortOrder
+    type?: SortOrder
     description?: SortOrderInput | SortOrder
     credits?: SortOrder
     totalClasses?: SortOrder
@@ -23477,7 +23513,9 @@ export namespace Prisma {
     NOT?: SubjectScalarWhereWithAggregatesInput | SubjectScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"Subject"> | number
     courseId?: IntWithAggregatesFilter<"Subject"> | number
+    code?: StringNullableWithAggregatesFilter<"Subject"> | string | null
     name?: StringWithAggregatesFilter<"Subject"> | string
+    type?: StringWithAggregatesFilter<"Subject"> | string
     description?: StringNullableWithAggregatesFilter<"Subject"> | string | null
     credits?: IntWithAggregatesFilter<"Subject"> | number
     totalClasses?: IntWithAggregatesFilter<"Subject"> | number
@@ -24983,7 +25021,9 @@ export namespace Prisma {
   }
 
   export type SubjectCreateInput = {
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -25000,7 +25040,9 @@ export namespace Prisma {
   export type SubjectUncheckedCreateInput = {
     id?: number
     courseId: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -25014,7 +25056,9 @@ export namespace Prisma {
   }
 
   export type SubjectUpdateInput = {
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -25031,7 +25075,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -25047,7 +25093,9 @@ export namespace Prisma {
   export type SubjectCreateManyInput = {
     id?: number
     courseId: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -25057,7 +25105,9 @@ export namespace Prisma {
   }
 
   export type SubjectUpdateManyMutationInput = {
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -25068,7 +25118,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -26653,7 +26705,9 @@ export namespace Prisma {
   export type SubjectCountOrderByAggregateInput = {
     id?: SortOrder
     courseId?: SortOrder
+    code?: SortOrder
     name?: SortOrder
+    type?: SortOrder
     description?: SortOrder
     credits?: SortOrder
     totalClasses?: SortOrder
@@ -26673,7 +26727,9 @@ export namespace Prisma {
   export type SubjectMaxOrderByAggregateInput = {
     id?: SortOrder
     courseId?: SortOrder
+    code?: SortOrder
     name?: SortOrder
+    type?: SortOrder
     description?: SortOrder
     credits?: SortOrder
     totalClasses?: SortOrder
@@ -26685,7 +26741,9 @@ export namespace Prisma {
   export type SubjectMinOrderByAggregateInput = {
     id?: SortOrder
     courseId?: SortOrder
+    code?: SortOrder
     name?: SortOrder
+    type?: SortOrder
     description?: SortOrder
     credits?: SortOrder
     totalClasses?: SortOrder
@@ -29732,7 +29790,9 @@ export namespace Prisma {
   }
 
   export type SubjectCreateWithoutFacultyInput = {
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -29748,7 +29808,9 @@ export namespace Prisma {
   export type SubjectUncheckedCreateWithoutFacultyInput = {
     id?: number
     courseId: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -29817,7 +29879,9 @@ export namespace Prisma {
   }
 
   export type SubjectCreateWithoutStudentsInput = {
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -29833,7 +29897,9 @@ export namespace Prisma {
   export type SubjectUncheckedCreateWithoutStudentsInput = {
     id?: number
     courseId: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -30335,7 +30401,9 @@ export namespace Prisma {
     NOT?: SubjectScalarWhereInput | SubjectScalarWhereInput[]
     id?: IntFilter<"Subject"> | number
     courseId?: IntFilter<"Subject"> | number
+    code?: StringNullableFilter<"Subject"> | string | null
     name?: StringFilter<"Subject"> | string
+    type?: StringFilter<"Subject"> | string
     description?: StringNullableFilter<"Subject"> | string | null
     credits?: IntFilter<"Subject"> | number
     totalClasses?: IntFilter<"Subject"> | number
@@ -30875,7 +30943,9 @@ export namespace Prisma {
   }
 
   export type SubjectCreateWithoutCourseInput = {
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -30890,7 +30960,9 @@ export namespace Prisma {
 
   export type SubjectUncheckedCreateWithoutCourseInput = {
     id?: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -31887,7 +31959,9 @@ export namespace Prisma {
   }
 
   export type SubjectCreateWithoutSessionsInput = {
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -31903,7 +31977,9 @@ export namespace Prisma {
   export type SubjectUncheckedCreateWithoutSessionsInput = {
     id?: number
     courseId: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -32107,7 +32183,9 @@ export namespace Prisma {
   }
 
   export type SubjectUpdateWithoutSessionsInput = {
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -32123,7 +32201,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateWithoutSessionsInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -33080,7 +33160,9 @@ export namespace Prisma {
   }
 
   export type SubjectCreateWithoutGradesInput = {
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -33096,7 +33178,9 @@ export namespace Prisma {
   export type SubjectUncheckedCreateWithoutGradesInput = {
     id?: number
     courseId: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -33243,7 +33327,9 @@ export namespace Prisma {
   }
 
   export type SubjectUpdateWithoutGradesInput = {
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -33259,7 +33345,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateWithoutGradesInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -33318,7 +33406,9 @@ export namespace Prisma {
   }
 
   export type SubjectCreateWithoutTimetableEntriesInput = {
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -33334,7 +33424,9 @@ export namespace Prisma {
   export type SubjectUncheckedCreateWithoutTimetableEntriesInput = {
     id?: number
     courseId: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -33475,7 +33567,9 @@ export namespace Prisma {
   }
 
   export type SubjectUpdateWithoutTimetableEntriesInput = {
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -33491,7 +33585,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateWithoutTimetableEntriesInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34201,7 +34297,9 @@ export namespace Prisma {
   export type SubjectCreateManyFacultyInput = {
     id?: number
     courseId: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -34676,7 +34774,9 @@ export namespace Prisma {
   }
 
   export type SubjectUpdateWithoutFacultyInput = {
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34692,7 +34792,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateWithoutFacultyInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34707,7 +34809,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateManyWithoutFacultyInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34772,7 +34876,9 @@ export namespace Prisma {
   }
 
   export type SubjectUpdateWithoutStudentsInput = {
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34788,7 +34894,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateWithoutStudentsInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34803,7 +34911,9 @@ export namespace Prisma {
   export type SubjectUncheckedUpdateManyWithoutStudentsInput = {
     id?: IntFieldUpdateOperationsInput | number
     courseId?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34814,7 +34924,9 @@ export namespace Prisma {
 
   export type SubjectCreateManyCourseInput = {
     id?: number
+    code?: string | null
     name: string
+    type?: string
     description?: string | null
     credits: number
     totalClasses?: number
@@ -34967,7 +35079,9 @@ export namespace Prisma {
   }
 
   export type SubjectUpdateWithoutCourseInput = {
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34982,7 +35096,9 @@ export namespace Prisma {
 
   export type SubjectUncheckedUpdateWithoutCourseInput = {
     id?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number
@@ -34997,7 +35113,9 @@ export namespace Prisma {
 
   export type SubjectUncheckedUpdateManyWithoutCourseInput = {
     id?: IntFieldUpdateOperationsInput | number
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     credits?: IntFieldUpdateOperationsInput | number
     totalClasses?: IntFieldUpdateOperationsInput | number

@@ -43,11 +43,15 @@ router.get("/attendance", authMiddleware, requireRole(["admin", "faculty", "stud
     }
     if (status) where.status = status;
 
-    // For faculty, show reports only for their courses
+    // For faculty, show reports only for their courses or subjects
     if (req.user.role === "faculty") {
       where.session = {
         ...where.session,
-        course: { facultyId: req.user.id },
+        OR: [
+          { facultyId: req.user.id },
+          { course: { facultyId: req.user.id } },
+          { subject: { facultyId: req.user.id } }
+        ]
       };
     }
 
@@ -136,9 +140,12 @@ router.get("/grades", authMiddleware, async (req, res, next) => {
     if (year) where.year = parseInt(year);
     if (grade) where.grade = grade;
 
-    // For faculty, show reports only for their courses
+    // For faculty, show reports only for their courses or assigned subjects
     if (req.user.role === "faculty") {
-      where.course = { facultyId: req.user.id };
+      where.OR = [
+        { course: { facultyId: req.user.id } },
+        { subject: { facultyId: req.user.id } }
+      ];
     }
 
     const reports = await prisma.grade.findMany({
@@ -287,13 +294,16 @@ router.get("/performance", authMiddleware, async (req, res, next) => {
     if (semester) where.semester = parseInt(semester);
     if (year) where.year = parseInt(year);
 
-    // For faculty, show reports only for their courses
+    // For faculty, show reports only for their courses or assigned subjects
     if (req.user.role === "faculty") {
-      where.course = { facultyId: req.user.id };
+      where.OR = [
+        { course: { facultyId: req.user.id } },
+        { subject: { facultyId: req.user.id } }
+      ];
     }
 
     // Get all grades and total enrolled students
-    const [grades, enrolledCourses] = await Promise.all([
+    const [grades, enrolledCourses, enrolledSubjects] = await Promise.all([
       prisma.grade.findMany({
         where,
         include: {
@@ -305,10 +315,17 @@ router.get("/performance", authMiddleware, async (req, res, next) => {
       prisma.course.findMany({
         where: req.user.role === "faculty" ? { facultyId: req.user.id } : (courseId ? { id: parseInt(courseId) } : {}),
         include: { students: true }
+      }),
+      prisma.subject.findMany({
+        where: req.user.role === "faculty" ? { facultyId: req.user.id } : {},
+        include: { students: true }
       })
     ]);
 
-    const enrolledStudentIds = new Set(enrolledCourses.flatMap(c => c.students.map(s => s.id)));
+    const enrolledStudentIds = new Set([
+      ...enrolledCourses.flatMap(c => c.students.map(s => s.id)),
+      ...enrolledSubjects.flatMap(s => s.students.map(st => st.id))
+    ]);
     const totalEnrolledStudents = enrolledStudentIds.size;
 
     // Group grades by student
@@ -407,7 +424,9 @@ router.get("/department", authMiddleware, async (req, res, next) => {
         where: { department: dept },
         include: {
           students: true,
-          subjects: true,
+          subjects: {
+            include: { faculty: true }
+          },
           faculty: true,
         },
       });
@@ -417,7 +436,10 @@ router.get("/department", authMiddleware, async (req, res, next) => {
         ...new Set(courses.flatMap((c) => c.students.map((s) => s.id))),
       ].length;
       const totalFaculty = [
-        ...new Set(courses.flatMap((c) => (c.faculty ? [c.faculty.id] : []))),
+        ...new Set([
+          ...courses.flatMap((c) => (c.faculty ? [c.faculty.id] : [])),
+          ...courses.flatMap((c) => c.subjects.flatMap(s => s.faculty ? [s.faculty.id] : []))
+        ]),
       ].length;
       const totalSubjects = courses.flatMap((c) => c.subjects).length;
 

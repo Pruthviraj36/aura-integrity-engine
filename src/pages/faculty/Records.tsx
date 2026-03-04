@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Eye, Loader2, Calendar } from "lucide-react";
+import { Search, Eye, Loader2, Calendar, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -24,9 +24,10 @@ export default function AttendanceRecords() {
   const sessions = Array.isArray(sessionsData) ? sessionsData : [];
 
   const filtered = sessions.filter((s: any) =>
-    s.course?.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.topic.toLowerCase().includes(search.toLowerCase()) ||
-    s.course?.code.toLowerCase().includes(search.toLowerCase())
+    s.course?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    s.subject?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    s.topic?.toLowerCase().includes(search.toLowerCase()) ||
+    s.course?.code?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (isLoading) {
@@ -39,82 +40,109 @@ export default function AttendanceRecords() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white uppercase tracking-tighter">Attendance History</h1>
-        <p className="text-sm text-slate-400 font-mono tracking-wider">RECORDS & AUDIT LOGS</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase aura-text-glow">Attendance History</h1>
+          <p className="text-sm text-muted-foreground font-mono tracking-wider flex items-center gap-2 mt-1">
+            <Calendar className="h-4 w-4 text-primary/70" /> RECORDS & AUDIT LOGS
+          </p>
+        </div>
+
+        <div className="relative max-w-sm group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Input
+            placeholder="Filter by subject or topic..."
+            className="pl-9 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/50"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
-      <div className="relative max-w-sm group">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-primary transition-colors" />
-        <Input
-          placeholder="Filter by course or topic..."
-          className="pl-9 bg-slate-900/50 border-slate-800 text-slate-200 placeholder:text-slate-600 focus:ring-primary/50"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      <Card className="bg-slate-900/40 border-slate-800 backdrop-blur-sm overflow-hidden shadow-xl">
+      <Card className="bg-card border-border backdrop-blur-sm shadow-xl overflow-hidden">
         <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-slate-950/40">
-              <TableRow className="border-slate-800 hover:bg-transparent">
-                <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Temporal Data</TableHead>
-                <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Course Entity</TableHead>
-                <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Topic/Core</TableHead>
-                <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Spatial Data</TableHead>
-                <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Metrics</TableHead>
-                <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">Status</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((s: any) => (
-                <TableRow key={s.id} className="border-slate-800 hover:bg-white/5 transition-colors group">
-                  <TableCell className="text-[11px] text-slate-400 font-mono italic">
-                    {format(new Date(s.date), "MMM dd, yyyy")}
-                  </TableCell>
-                  <TableCell className="font-bold text-sm text-slate-100 uppercase tracking-tighter">
-                    {s.course?.code}
-                    <span className="block text-[10px] font-normal text-slate-500">{s.course?.name}</span>
-                  </TableCell>
-                  <TableCell className="max-w-[200px] py-3">
-                    <span className="text-sm text-slate-300 italic block truncate">{s.topic}</span>
-                    {s.batches && s.batches.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {s.batches.map((b: string) => (
-                          <span key={b} className="px-1.5 py-0.5 bg-slate-800 text-[9px] text-slate-400 border border-slate-700 rounded font-bold">
-                            {b}
-                          </span>
-                        ))}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-muted/30">
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.2em] h-12 pl-6">Temporal Data</TableHead>
+                  <TableHead className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.2em] h-12">Subject Module</TableHead>
+                  <TableHead className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.2em] h-12">Session Details</TableHead>
+                  <TableHead className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.2em] h-12 text-center">Metrics</TableHead>
+                  <TableHead className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.2em] h-12">Status</TableHead>
+                  <TableHead className="w-[80px] pr-6"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((s: any) => (
+                  <TableRow key={s.id} className="border-border hover:bg-muted/40 transition-colors group">
+                    <TableCell className="pl-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-foreground">{format(new Date(s.date), "MMM dd, yyyy")}</span>
+                        <span className="text-[10px] text-muted-foreground font-mono mt-0.5">{s.startTime} — {s.endTime}</span>
                       </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-[11px] text-slate-500 font-mono">ROOM: {s.room || "—"}</TableCell>
-                  <TableCell className="text-xs font-mono font-bold text-primary bg-primary/5 px-2 py-1 rounded w-fit">
-                    {s.presentCount || 0}/{s.totalStudents || 0}
-                  </TableCell>
-                  <TableCell>
-                    <span className={`text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest ${s.status === "completed" ? "bg-emerald-500/20 text-emerald-500" : "bg-cyan-500/20 text-cyan-500"}`}>
-                      {s.status || "In-Progress"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-white" onClick={() => navigate(`/faculty/session/${s.id}`)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center text-slate-500 italic font-mono uppercase tracking-widest text-[10px]">No records found</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-black text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">
+                          {s.subject?.name || s.course?.name}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground font-mono flex items-center gap-1 mt-0.5">
+                          <BookOpen className="h-3 w-3" /> {s.course?.code}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="max-w-[200px]">
+                      <span className="text-sm text-foreground font-medium block truncate italic">"{s.topic}"</span>
+                      {s.batches && s.batches.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {s.batches.map((b: string) => (
+                            <span key={b} className="px-1.5 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded text-[9px] font-black uppercase tracking-tighter">
+                              {b}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="inline-flex flex-col items-center justify-center bg-muted/50 border border-border rounded-lg px-3 py-1.5">
+                        <span className="text-xs font-black text-primary font-mono tracking-tighter">
+                          {s.attendance?.length || 0} / {s.totalStudents || '—'}
+                        </span>
+                        <span className="text-[8px] text-muted-foreground uppercase font-black tracking-widest leading-none mt-0.5">Verified</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest ${s.status === "completed" ? "bg-emerald-500/10 text-emerald-500" : "bg-primary/10 text-primary animate-pulse"}`}>
+                        {s.status || "Live"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right pr-6">
+                      <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all rounded-full" onClick={() => navigate(`/faculty/session/${s.id}`)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-40 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-2 opacity-30">
+                        <Search className="h-8 w-8 text-muted-foreground" />
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No matching records found</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
+
+      <div className="text-center">
+        <p className="text-[9px] text-muted-foreground/40 font-mono uppercase tracking-[0.5em]">Academic Integrity Engine // Historical Audit Feed</p>
+      </div>
     </div>
   );
 }

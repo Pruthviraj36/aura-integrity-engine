@@ -1,9 +1,25 @@
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { CalendarCheck, Users, BarChart3, Play, Clock, Loader2 } from "lucide-react";
-import { sessionsAPI, reportsAPI, coursesAPI } from "@/lib/api";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  CalendarCheck,
+  Users,
+  BarChart3,
+  Play,
+  Clock,
+  Loader2,
+  BookOpen,
+  ChevronRight,
+} from "lucide-react";
+import { sessionsAPI, reportsAPI, subjectsAPI } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,10 +33,13 @@ export default function FacultyDashboard() {
   const { data: sessionsData, isLoading: isSessionsLoading } = useQuery({
     queryKey: ["faculty", "sessions", today],
     queryFn: async () => {
-      const resp = await sessionsAPI.getSessions({ date: today, facultyId: user?.id });
+      const resp = await sessionsAPI.getSessions({
+        date: today,
+        facultyId: user?.id,
+      });
       return resp.data.data.sessions;
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
   });
 
   const { data: performanceData, isLoading: isPerformanceLoading } = useQuery({
@@ -28,20 +47,20 @@ export default function FacultyDashboard() {
     queryFn: async () => {
       const resp = await reportsAPI.performance();
       return resp.data.data;
-    }
-  });
-
-  const { data: coursesData, isLoading: isCoursesLoading } = useQuery({
-    queryKey: ["faculty", "courses"],
-    queryFn: async () => {
-      const resp = await coursesAPI.getCourses();
-      const courses = resp.data.data.courses || [];
-      return courses.filter((c: any) => c.facultyId === user?.id);
     },
-    enabled: !!user?.id
   });
 
-  const isLoading = isSessionsLoading || isPerformanceLoading || isCoursesLoading;
+  const { data: subjectsData, isLoading: isSubjectsLoading } = useQuery({
+    queryKey: ["faculty", "subjects"],
+    queryFn: async () => {
+      const resp = await subjectsAPI.getSubjects({ facultyId: user?.id });
+      return resp.data.data.subjects || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const isLoading =
+    isSessionsLoading || isPerformanceLoading || isSubjectsLoading;
 
   if (isLoading) {
     return (
@@ -52,103 +71,223 @@ export default function FacultyDashboard() {
   }
 
   const todaySessions = sessionsData || [];
-  const completedToday = todaySessions.filter((s: any) => s.status === "completed").length;
+  const completedToday = todaySessions.filter(
+    (s: any) => s.status === "completed",
+  ).length;
 
-  const attainmentData = performanceData?.students?.slice(0, 6).map((s: any) => ({
-    name: s.student?.studentProfile?.fullName?.split(' ').map((n: string) => n[0]).join('') || s.student?.username?.substring(0, 3).toUpperCase() || "STU",
-    attainment: s.averagePercentage || 0
-  })) || [];
+  const attainmentData =
+    performanceData?.students?.slice(0, 6).map((s: any) => ({
+      name:
+        s.student?.studentProfile?.fullName
+          ?.split(" ")
+          .map((n: string) => n[0])
+          .join("") ||
+        s.student?.username?.substring(0, 3).toUpperCase() ||
+        "STU",
+      attainment: s.averagePercentage || 0,
+    })) || [];
 
   const recentActivity = todaySessions.slice(0, 3).map((s: any) => ({
-    text: `Session: ${s.topic} (${s.course?.code})`,
-    time: s.status === "completed" ? "Completed" : `Scheduled for ${s.startTime}`,
-    type: s.status
+    text: `${s.subject?.name || s.topic}`,
+    subtext: `Ref: ${s.course?.code}`,
+    time:
+      s.status === "completed" ? "Completed" : `Starts @ ${s.startTime}`,
+    type: s.status,
   }));
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-black tracking-tight text-foreground uppercase aura-text-glow">Academic Oversight</h1>
-        <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1">
-          Officer: {user?.profile?.fullName || user?.username} // Institutional Grade Dashboard
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase aura-text-glow">
+            Academic Oversight
+          </h1>
+          <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
+            Officer: {user?.profile?.fullName || user?.username} // Institutional Feed
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/faculty/records')}
+          className="glass-card border-none text-muted-foreground hover:text-primary font-black uppercase text-[10px] tracking-widest px-4 h-9"
+        >
+          Audit History <ChevronRight className="ml-2 h-3.5 w-3.5" />
+        </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Today's Sessions" value={todaySessions.length.toString()} subtitle={`${completedToday} completed, ${todaySessions.length - completedToday} upcoming`} icon={CalendarCheck} />
-        <StatCard title="Assigned Courses" value={coursesData?.length.toString() || "0"} subtitle="Active semester" icon={Users} />
-        <StatCard title="Class Average" value={`${performanceData?.statistics?.classAverage || 0}%`} icon={BarChart3} />
-        <StatCard title="Total Students" value={performanceData?.statistics?.totalStudents?.toString() || "0"} subtitle="In assigned courses" icon={Users} />
+        <StatCard
+          title="Today's Sessions"
+          value={todaySessions.length.toString()}
+          subtitle={`${completedToday} completed, ${todaySessions.length - completedToday} upcoming`}
+          icon={CalendarCheck}
+        />
+        <StatCard
+          title="Assigned Subjects"
+          value={subjectsData?.length.toString() || "0"}
+          subtitle="Active academic session"
+          icon={BookOpen}
+        />
+        <StatCard
+          title="Class Average"
+          value={`${performanceData?.statistics?.classAverage || 0}%`}
+          subtitle="Across all active subjects"
+          icon={BarChart3}
+        />
+        <StatCard
+          title="Total Students"
+          value={performanceData?.statistics?.totalStudents?.toString() || "0"}
+          subtitle="Enrolled in assigned modules"
+          icon={Users}
+        />
       </div>
 
       {/* Today's Sessions */}
-      <Card className="bg-card/40 border-border backdrop-blur-sm">
-        <CardHeader className="pb-3 px-6">
-          <CardTitle className="text-sm font-medium text-slate-300">Today's Schedule</CardTitle>
+      <Card className="glass-card aura-glow border-none overflow-hidden">
+        <CardHeader className="bg-primary/5 border-b border-border/10 px-6 py-4">
+          <CardTitle className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] flex items-center gap-2">
+            <Clock className="h-4 w-4 text-primary" /> Today's Academic Schedule
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 px-6 pb-6">
+        <CardContent className="p-6 space-y-4">
           {todaySessions.length > 0 ? (
             todaySessions.map((session: any) => (
-              <div key={session.id} className="flex items-center justify-between rounded-xl bg-background/40 border border-border/50 p-4 transition-all hover:border-primary/30">
-                <div className="space-y-1">
-                  <p className="text-sm font-bold text-foreground uppercase tracking-tight">{session.course?.code} — {session.topic}</p>
-                  <div className="flex items-center gap-4 text-xs text-slate-400 font-mono">
-                    <span className="flex items-center gap-1.5"><Clock className="h-3 w-3 text-primary/70" />{session.startTime} - {session.endTime}</span>
-                    <span className="bg-slate-800/80 px-2 py-0.5 rounded text-[10px]">{session.roomNumber || "Online"}</span>
-                    <span className="text-primary/80 font-bold">{session.attendanceCount} records</span>
+              <div
+                key={session.id}
+                className="flex items-center justify-between rounded-2xl bg-muted/10 border border-white/5 p-5 transition-all hover:bg-muted/20 hover:border-primary/40 group relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/[0.02] to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+
+                <div className="space-y-1.5 relative z-10">
+                  <p className="text-sm font-black text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">
+                    {session.subject?.name || session.course?.code} — {session.topic}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[10px] text-muted-foreground font-mono">
+                    <span className="flex items-center gap-2 bg-black/20 px-2 py-0.5 rounded border border-white/5">
+                      <Clock className="h-3.5 w-3.5 text-primary/70" />
+                      {session.startTime} - {session.endTime}
+                    </span>
+                    <span className="bg-black/20 px-2 py-0.5 rounded border border-white/5 text-[9px] font-bold">
+                      {session.roomNumber || "OFF-SITE"}
+                    </span>
+                    <span className="text-primary font-black aura-text-glow">
+                      {session.attendanceCount || 0} VERIFIED SIGNALS
+                    </span>
                   </div>
                 </div>
                 <Button
                   size="sm"
-                  variant={session.status === "scheduled" ? "default" : "outline"}
-                  className={session.status === "scheduled" ? "bg-primary hover:bg-primary/90 text-primary-foreground font-bold" : "border-border text-muted-foreground hover:text-foreground"}
+                  variant={
+                    session.status === "scheduled" ? "default" : "outline"
+                  }
+                  className={
+                    session.status === "scheduled"
+                      ? "bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[10px] px-6 h-9 shadow-[0_0_20px_rgba(var(--primary),0.3)] relative z-10"
+                      : "glass-card border-none text-muted-foreground hover:text-foreground font-black uppercase tracking-widest text-[10px] px-6 h-9 relative z-10"
+                  }
                   onClick={() => navigate(`/faculty/session/${session.id}`)}
                 >
-                  {session.status === "scheduled" ? <><Play className="mr-2 h-3.5 w-3.5 fill-current" />Start Session</> : "View Details"}
+                  {session.status === "scheduled" ? (
+                    <>
+                      <Play className="mr-2 h-3.5 w-3.5 fill-current" />
+                      Initialize
+                    </>
+                  ) : (
+                    "Audit"
+                  )}
                 </Button>
               </div>
             ))
           ) : (
-            <div className="text-center py-12 border-2 border-dashed border-border rounded-xl">
-              <Clock className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-sm font-medium text-muted-foreground">No sessions scheduled for today</p>
+            <div className="text-center py-20 border-2 border-dashed border-white/5 rounded-2xl bg-muted/5">
+              <Clock className="h-16 w-16 text-muted-foreground/10 mx-auto mb-6" />
+              <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.4em]">
+                Static Schedule // No Active Sessions
+              </p>
             </div>
           )}
         </CardContent>
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="bg-card/40 border-border backdrop-blur-sm">
-          <CardHeader className="pb-3 px-6"><CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Top Performance Overview</CardTitle></CardHeader>
-          <CardContent className="px-6 pb-6">
+        <Card className="bg-card border-border shadow-xl">
+          <CardHeader className="bg-muted/30 border-b border-border px-6 py-4">
+            <CardTitle className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+              Performance Metrics // Attainment
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={attainmentData}>
-                <XAxis dataKey="name" tick={{ fill: "hsl(215 20% 55%)", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "hsl(215 20% 55%)", fontSize: 12 }} axisLine={false} tickLine={false} domain={[0, 100]} />
-                <Tooltip
-                  cursor={{ fill: "rgba(255,255,255,0.05)" }}
-                  contentStyle={{ background: "hsl(222 47% 8%)", border: "1px solid hsl(222 30% 18%)", borderRadius: 8, color: "hsl(210 40% 96%)" }}
+                <XAxis
+                  dataKey="name"
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
+                  axisLine={false}
+                  tickLine={false}
                 />
-                <Bar dataKey="attainment" fill="hsl(187 100% 50%)" radius={[4, 4, 0, 0]} barSize={30} />
+                <YAxis
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
+                  axisLine={false}
+                  tickLine={false}
+                  domain={[0, 100]}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(var(--primary), 0.05)" }}
+                  contentStyle={{
+                    background: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: 12,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                  }}
+                />
+                <Bar
+                  dataKey="attainment"
+                  fill="hsl(var(--primary))"
+                  radius={[4, 4, 0, 0]}
+                  barSize={32}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/40 border-border backdrop-blur-sm">
-          <CardHeader className="pb-3 px-6"><CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Activity & Logs</CardTitle></CardHeader>
-          <CardContent className="space-y-4 px-6 pb-6">
-            {recentActivity.map((item, i) => (
-              <div key={i} className="flex items-start gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors">
-                <div className="mt-1.5 h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(34,211,238,0.5)] shrink-0" />
-                <div className="space-y-0.5">
-                  <p className="text-sm text-foreground font-medium leading-none">{item.text}</p>
-                  <p className="text-[11px] text-muted-foreground font-mono">{item.time}</p>
+        <Card className="bg-card border-border shadow-xl">
+          <CardHeader className="bg-muted/30 border-b border-border px-6 py-4">
+            <CardTitle className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+              Telemetry Feed // Recent Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 space-y-2">
+            {recentActivity.length > 0 ? recentActivity.map((item, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-4 p-4 rounded-xl border border-transparent hover:border-border hover:bg-muted/20 transition-all cursor-default group"
+              >
+                <div className="mt-1 h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)] shrink-0 group-hover:scale-125 transition-transform" />
+                <div className="space-y-1">
+                  <p className="text-sm text-foreground font-black uppercase tracking-tight leading-none group-hover:text-primary transition-colors">
+                    {item.text}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-mono">
+                    {item.subtext} • <span className="text-primary/70">{item.time}</span>
+                  </p>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="text-center py-10">
+                <p className="text-xs text-muted-foreground italic">Standby // No recent activity detected</p>
+              </div>
+            )}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="text-center pt-4">
+        <p className="text-[9px] text-muted-foreground/30 font-mono uppercase tracking-[0.5em]">Aura Integrity Engine // Central Oversight Terminal</p>
       </div>
     </div>
   );

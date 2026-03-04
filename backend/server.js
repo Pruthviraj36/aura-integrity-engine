@@ -9,7 +9,6 @@ const prisma = require("./prisma");
 const authMiddleware = require("./middleware/auth");
 const errorHandler = require("./middleware/error");
 
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -17,20 +16,34 @@ const PORT = process.env.PORT || 3001;
 const { getLocalIp } = require("./utils/network");
 const networkIp = getLocalIp();
 
-const baseOrigins = (process.env.CORS_ORIGIN || "http://localhost:8080").split(",");
-const allowedOrigins = [...new Set([...baseOrigins, `http://${networkIp}:8080`, `http://localhost:8080`])];
+const baseOrigins = (process.env.CORS_ORIGIN || "http://localhost:8080").split(
+  ",",
+);
+const allowedOrigins = [
+  ...new Set([
+    ...baseOrigins,
+    `http://${networkIp}:8080`,
+    `http://localhost:8080`,
+  ]),
+];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow if no origin (like mobile apps) or if it's in our allowed list
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS Violation: Origin ${origin} is not authorized for this instance.`));
-    }
-  },
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow if no origin (like mobile apps) or if it's in our allowed list
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(
+          new Error(
+            `CORS Violation: Origin ${origin} is not authorized for this instance.`,
+          ),
+        );
+      }
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 // Routes
@@ -45,6 +58,7 @@ const timetableRoutes = require("./routes/timetable");
 const gradeRoutes = require("./routes/grades");
 const reportRoutes = require("./routes/reports");
 const notificationRoutes = require("./routes/notifications");
+const subjectRoutes = require("./routes/subjects");
 
 // Public routes
 app.use("/api/auth", authRoutes);
@@ -60,6 +74,7 @@ app.use("/api/timetable", authMiddleware, timetableRoutes);
 app.use("/api/grades", authMiddleware, gradeRoutes);
 app.use("/api/reports", authMiddleware, reportRoutes);
 app.use("/api/notifications", authMiddleware, notificationRoutes);
+app.use("/api/subjects", authMiddleware, subjectRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

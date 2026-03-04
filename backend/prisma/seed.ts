@@ -3,8 +3,6 @@ import prisma from "./index";
 import argon2 from "argon2";
 import studentsData from "../extracted_students.json";
 
-// In Prisma 7 with adapters, we use the centralized client from index.js
-
 async function main() {
   console.log("🌱 Starting seed...");
 
@@ -170,20 +168,97 @@ async function main() {
   });
 
   const subjectData = [
-    { code: "CS601", name: "Automata Theory and Compiler Construction (ATCC)", credits: 4, type: "Theory", faculty: "Dixita Kagathara" },
-    { code: "CS602", name: "Operating Systems (OS)", credits: 4, type: "Theory", faculty: "Firoz Sherasiya" },
-    { code: "CS603", name: "Fundamentals of Accounting (FOA)", credits: 4, type: "Theory", faculty: "Javed Nathani" },
-    { code: "CS606", name: "Advanced Web Technologies (AWT)", credits: 3, type: "Theory", faculty: "Arjun Bala" },
-    { code: "CS607", name: "Information Network Security (INS)", credits: 3, type: "Theory", faculty: "Maulik Trivedi" },
-    { code: "CS608", name: "UI/UX Designing", credits: 3, type: "Theory", faculty: "Mayur Padia" },
-    { code: "CS609", name: ".NET", credits: 3, type: "Theory", faculty: "Naimish Vadodariya" },
-    { code: "CS610", name: "Advanced .NET", credits: 3, type: "Theory", faculty: "Naimish Vadodariya" },
-    { code: "CS611", name: "Advanced Advanced .NET", credits: 3, type: "Theory", faculty: "Naimish Vadodariya" },
-    { code: "CS612", name: "Flutter", credits: 3, type: "Theory", faculty: "Mehul Bhundiya" },
-    { code: "CS613", name: "Advanced Flutter", credits: 3, type: "Theory", faculty: "Mehul Bhundiya" },
-    { code: "CS604", name: "Machine Learning and Deep Learning (MLDL)", credits: 3, type: "Theory", faculty: "Jayesh Vagadiya" },
-    { code: "CS605", name: "Machine Learning (ML)", credits: 3, type: "Theory", faculty: "Jayesh Vagadiya" },
-    { code: "CS614", name: "Mobile Computing and Wireless Communication (MCWC)", credits: 3, type: "Theory", faculty: "Dixita Kagathara" },
+    {
+      code: "CS601",
+      name: "Automata Theory and Compiler Construction (ATCC)",
+      credits: 4,
+      type: "Theory",
+      faculty: "Dixita Kagathara",
+    },
+    {
+      code: "CS602",
+      name: "Operating Systems (OS)",
+      credits: 4,
+      type: "Theory",
+      faculty: "Firoz Sherasiya",
+    },
+    {
+      code: "CS603",
+      name: "Fundamentals of Accounting (FOA)",
+      credits: 4,
+      type: "Theory",
+      faculty: "Javed Nathani",
+    },
+    {
+      code: "CS606",
+      name: "Advanced Web Technologies (AWT)",
+      credits: 3,
+      type: "Theory",
+      faculty: "Arjun Bala",
+    },
+    {
+      code: "CS607",
+      name: "Information Network Security (INS)",
+      credits: 3,
+      type: "Theory",
+      faculty: "Maulik Trivedi",
+    },
+    {
+      code: "CS608",
+      name: "UI/UX Designing",
+      credits: 3,
+      type: "Theory",
+      faculty: "Mayur Padia",
+    },
+    {
+      code: "CS609",
+      name: ".NET",
+      credits: 3,
+      type: "Theory",
+      faculty: "Naimish Vadodariya",
+    },
+    {
+      code: "CS610",
+      name: "Advanced .NET",
+      credits: 3,
+      type: "Theory",
+      faculty: "Naimish Vadodariya",
+    },
+    {
+      code: "CS611",
+      name: "Advanced Advanced .NET",
+      credits: 3,
+      type: "Theory",
+      faculty: "Naimish Vadodariya",
+    },
+    {
+      code: "CS612",
+      name: "Flutter",
+      credits: 3,
+      type: "Theory",
+      faculty: "Mehul Bhundiya",
+    },
+    {
+      code: "CS613",
+      name: "Advanced Flutter",
+      credits: 3,
+      type: "Theory",
+      faculty: "Mehul Bhundiya",
+    },
+    {
+      code: "CS604",
+      name: "Machine Learning and Deep Learning (MLDL)",
+      credits: 3,
+      type: "Theory",
+      faculty: "Jayesh Vagadiya",
+    },
+    {
+      code: "CS605",
+      name: "Machine Learning (ML)",
+      credits: 3,
+      type: "Theory",
+      faculty: "Jayesh Vagadiya",
+    },
   ];
 
   const subjects: any[] = [];
@@ -223,16 +298,24 @@ async function main() {
   console.log(`📡 Preparing ${studentsData.length} students for deployment...`);
 
   const studentOperations = studentsData.map((studentEntry) => {
-    const [index, enroll, class_, rollno, name, elective1, elective2] = studentEntry;
+    const [index, enroll, class_, rollno, name, elective1, elective2] =
+      studentEntry;
     const batch = class_; // "A1", "A2", etc.
     const semester = 6;
-    const username = name.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+    const username = name
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "");
     const email = `${enroll}@darshan.ac.in`;
 
     const studentSubjects: any[] = [];
     // Core subjects assigned to everyone
-    ["Automata Theory and Compiler Construction (ATCC)", "Operating Systems (OS)", "Fundamentals of Accounting (FOA)"].forEach(name => {
-      const subject = subjects.find(s => s.name === name);
+    [
+      "Automata Theory and Compiler Construction (ATCC)",
+      "Operating Systems (OS)",
+      "Fundamentals of Accounting (FOA)",
+    ].forEach((name) => {
+      const subject = subjects.find((s) => s.name === name);
       if (subject) studentSubjects.push(subject);
     });
 
@@ -241,31 +324,59 @@ async function main() {
       const normalized = elective.trim().toLowerCase();
       let mappedName = "";
 
-      // Elective 1 Mapping
-      if (normalized.includes("web technology") || normalized.includes("awt")) mappedName = "Advanced Web Technologies (AWT)";
-      else if (normalized.includes("ins") || normalized.includes("security")) mappedName = "Information Network Security (INS)";
-      else if (normalized.includes("ui/ux") || normalized.includes("designing")) mappedName = "UI/UX Designing";
-      else if (normalized.includes("asp. net core") || normalized.includes(".net")) {
-        if (normalized.includes("advanced")) {
-          if (normalized.includes("modern architecture")) mappedName = "Advanced Advanced .NET";
-          else mappedName = "Advanced .NET";
-        } else mappedName = ".NET";
+      // Check all possible subject mappings (both electives can be any subject)
+      // AWT - Advanced Web Technologies
+      if (normalized.includes("web technology") || normalized.includes("awt")) {
+        mappedName = "Advanced Web Technologies (AWT)";
       }
-      else if (normalized.includes("flutter")) {
-        if (normalized.includes("advanced")) mappedName = "Advanced Flutter";
-        else mappedName = "Flutter";
+      // INS - Information Network Security
+      else if (
+        normalized.includes("ins") ||
+        normalized.includes("information network security")
+      ) {
+        mappedName = "Information Network Security (INS)";
       }
-
-      // Elective 2 Mapping
+      // UI/UX Designing
+      else if (
+        normalized.includes("ui/ux") ||
+        normalized.includes("designing")
+      ) {
+        mappedName = "UI/UX Designing";
+      }
+      // .NET variants - check for most specific first
+      else if (
+        normalized.includes("advanced .net development") ||
+        normalized.includes("modern architectures")
+      ) {
+        mappedName = "Advanced Advanced .NET";
+      } else if (
+        normalized.includes("advanced .net") ||
+        (normalized.includes("restful apis") && normalized.includes("advanced"))
+      ) {
+        mappedName = "Advanced .NET";
+      } else if (
+        normalized.includes("asp. net core") ||
+        normalized.includes("asp.net core") ||
+        (normalized.includes(".net") && !normalized.includes("advanced"))
+      ) {
+        mappedName = ".NET";
+      }
+      // Flutter variants
+      else if (normalized.includes("advanced flutter")) {
+        mappedName = "Advanced Flutter";
+      } else if (normalized.includes("flutter")) {
+        mappedName = "Flutter";
+      }
+      // Machine Learning variants
       else if (normalized.includes("machine learning")) {
-        if (normalized.includes("deep learning") || normalized.includes("mldl")) mappedName = "Machine Learning and Deep Learning (MLDL)";
+        if (normalized.includes("deep learning"))
+          mappedName = "Machine Learning and Deep Learning (MLDL)";
         else mappedName = "Machine Learning (ML)";
       }
-      else if (normalized.includes("mcwc") || normalized.includes("mobile computing")) mappedName = "Mobile Computing and Wireless Communication (MCWC)";
 
       if (mappedName) {
-        const subject = subjects.find(s => s.name === mappedName);
-        if (subject && !studentSubjects.find(s => s.id === subject.id)) {
+        const subject = subjects.find((s) => s.name === mappedName);
+        if (subject && !studentSubjects.find((s) => s.id === subject.id)) {
           studentSubjects.push(subject);
         }
       }
@@ -282,7 +393,7 @@ async function main() {
         role: "student",
         status: "active",
         studentCourses: {
-          connect: [{ id: programCourse.id }]
+          connect: [{ id: programCourse.id }],
         },
         studentSubjects: {
           connect: studentSubjects.map((s) => ({ id: s.id })),
@@ -299,7 +410,7 @@ async function main() {
             parentEmail: `parent.${enroll}@darshan.ac.in`,
           },
         },
-      }
+      },
     });
   });
 
@@ -308,13 +419,17 @@ async function main() {
   for (let i = 0; i < studentOperations.length; i += chunkSize) {
     const chunk = studentOperations.slice(i, i + chunkSize);
     await Promise.all(chunk);
-    process.stdout.write(`⚡ Progress: ${Math.min(i + chunkSize, studentOperations.length)}/${studentOperations.length} students synchronized...\r`);
+    process.stdout.write(
+      `⚡ Progress: ${Math.min(i + chunkSize, studentOperations.length)}/${studentOperations.length} students synchronized...\r`,
+    );
   }
-  process.stdout.write('\n');
+  process.stdout.write("\n");
 
   console.log("✅ Students created:", studentOperations.length, "students");
 
-  console.log("🎉 Seed complete! Core data (Faculty, Courses, Students) is ready. No historical sessions or grades created.");
+  console.log(
+    "🎉 Seed complete! Core data (Faculty, Courses, Students) is ready. No historical sessions or grades created.",
+  );
 }
 
 main()

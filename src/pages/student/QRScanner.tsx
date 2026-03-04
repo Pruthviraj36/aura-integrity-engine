@@ -46,7 +46,20 @@ export default function QRScanner() {
           // Success
           html5QrCode.stop();
           setScanning(false);
-          markAttendanceMutation.mutate(decodedText);
+
+          // Extract token if it's a URL
+          let token = decodedText;
+          try {
+            if (decodedText.startsWith('http')) {
+              const url = new URL(decodedText);
+              const urlToken = url.searchParams.get("token");
+              if (urlToken) token = urlToken;
+            }
+          } catch (e) {
+            console.error("URL parsing error:", e);
+          }
+
+          markAttendanceMutation.mutate(token);
         },
         (errorMessage) => {
           // parse errors, ignore them
@@ -93,14 +106,28 @@ export default function QRScanner() {
             <div id={SCANNER_ID} className="w-full h-full object-cover" />
 
             {!window.isSecureContext && (
-              <div className="absolute inset-0 bg-red-950/90 z-50 flex flex-col items-center justify-center p-6 text-center space-y-4">
-                <Shield className="h-12 w-12 text-red-500" />
-                <h3 className="text-white font-bold uppercase tracking-tight">Secure Context Required</h3>
-                <p className="text-xs text-slate-300">
-                  Camera access requires an HTTPS connection for security. <br />
-                  Please use <code className="bg-black/40 px-1 rounded">localhost</code> or a secure tunnel.
-                </p>
-                <Button variant="outline" size="sm" className="border-red-500 text-red-500" onClick={() => window.open("https://web.dev/media-device-permission-policy/")}>Learn More</Button>
+              <div className="absolute inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-8 text-center space-y-6 overflow-y-auto">
+                <div className="p-4 bg-red-500/10 rounded-full border border-red-500/20">
+                  <Shield className="h-10 w-10 text-red-500" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-white font-black uppercase tracking-tight text-lg">Insecure Protocol Detected</h3>
+                  <p className="text-[10px] text-slate-400 font-mono uppercase tracking-widest">Mobile Browser Security Restriction</p>
+                </div>
+                <div className="bg-background/50 border border-border p-4 rounded-xl text-left space-y-3 max-w-sm">
+                  <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                    Chrome & Safari block cameras on <span className="text-primary">HTTP</span> network IPs. To bypass this for testing:
+                  </p>
+                  <ol className="text-[10px] text-slate-400 space-y-2 list-decimal ml-4">
+                    <li>Enter <code className="bg-black/40 px-1 rounded text-primary">chrome://flags/#unsafely-treat-insecure-origin-as-secure</code></li>
+                    <li>Add <code className="bg-black/40 px-1 rounded text-primary">{window.location.origin}</code> to the list.</li>
+                    <li>Set to <span className="text-emerald-500 font-bold">Enabled</span> and relaunch.</li>
+                  </ol>
+                </div>
+                <div className="flex flex-col gap-3 w-full">
+                  <Button variant="outline" size="sm" className="border-slate-800 text-slate-400 hover:text-white uppercase text-[10px] font-black tracking-widest" onClick={() => window.open("https://web.dev/media-device-permission-policy/")}>Official Documentation</Button>
+                  <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 uppercase text-[10px] font-black tracking-widest" onClick={() => window.location.reload()}>Refresh After Bypass</Button>
+                </div>
               </div>
             )}
 

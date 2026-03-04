@@ -27,10 +27,19 @@ export default function VerifyAttendance() {
         },
         onError: (err: any) => {
             setStatus("error");
-            setErrorMessage(err.response?.data?.message || "Verification failed. The link may be expired.");
+            const detail = err.response?.data?.message || err.message || "Network Timeout";
+            setErrorMessage(`${detail}. Please ensure your device is on the campus network.`);
+            console.error("Verification error details:", err);
             toast.error("Verification failed");
         }
     });
+
+    const handleRetry = () => {
+        if (token) {
+            setStatus("verifying");
+            verifyMutation.mutate(token);
+        }
+    };
 
     useEffect(() => {
         if (!authLoading && user && token && status === "verifying") {
@@ -105,22 +114,27 @@ export default function VerifyAttendance() {
                                 <h2 className="text-red-500 font-black uppercase tracking-tight text-xl">Authentication Failure</h2>
                                 <p className="text-slate-400 text-sm font-medium">{errorMessage}</p>
                             </div>
-                            <div className="flex flex-col gap-3">
-                                <Button
-                                    onClick={() => navigate("/student/scan")}
-                                    variant="outline"
-                                    className="w-full border-slate-800 text-slate-300 font-bold uppercase"
-                                >
-                                    Try Manual Scan
-                                </Button>
-                                <Button
-                                    onClick={() => navigate("/student/dashboard")}
-                                    variant="ghost"
-                                    className="w-full text-slate-500 hover:text-white flex items-center justify-center gap-2"
-                                >
-                                    <ArrowLeft className="h-4 w-4" /> Go Back
-                                </Button>
-                            </div>
+                            <Button
+                                onClick={handleRetry}
+                                disabled={verifyMutation.isPending}
+                                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest"
+                            >
+                                {verifyMutation.isPending ? "Re-verifying..." : "Retry Verification"}
+                            </Button>
+                            <Button
+                                onClick={() => navigate("/student/scan")}
+                                variant="outline"
+                                className="w-full border-slate-800 text-slate-300 font-bold uppercase transition-all hover:bg-slate-800"
+                            >
+                                Manual QR Scan
+                            </Button>
+                            <Button
+                                onClick={() => navigate("/student/dashboard")}
+                                variant="ghost"
+                                className="w-full text-slate-500 hover:text-white flex items-center justify-center gap-2"
+                            >
+                                <ArrowLeft className="h-4 w-4" /> Go Back
+                            </Button>
                         </div>
                     )}
                 </CardContent>

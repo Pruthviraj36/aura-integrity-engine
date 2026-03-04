@@ -4,7 +4,10 @@ const getBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
 
   // Dynamic fallback: if we're on localhost but want to hit the network IP
-  if (window.location.hostname === "localhost" && import.meta.env.VITE_NETWORK_IP) {
+  if (
+    window.location.hostname === "localhost" &&
+    import.meta.env.VITE_NETWORK_IP
+  ) {
     return `http://${import.meta.env.VITE_NETWORK_IP}:3001/api`;
   }
 
@@ -80,10 +83,14 @@ export const usersAPI = {
 
   updateUser: (id: string | number, data: any) => api.put(`/users/${id}`, data),
 
-  updateStudentProfile: (id: string | number, data: any) => api.put(`/users/${id}/profile`, data),
+  updateStudentProfile: (id: string | number, data: any) =>
+    api.put(`/users/${id}/profile`, data),
 
-  updateStudentEnrollment: (id: string | number, courseIds: number[], subjectIds: number[]) =>
-    api.put(`/users/students/${id}/enrollment`, { courseIds, subjectIds }),
+  updateStudentEnrollment: (
+    id: string | number,
+    courseIds: number[],
+    subjectIds: number[],
+  ) => api.put(`/users/students/${id}/enrollment`, { courseIds, subjectIds }),
 
   deleteUser: (id: string | number) => api.delete(`/users/${id}`),
 };
@@ -96,7 +103,8 @@ export const coursesAPI = {
 
   createCourse: (data: any) => api.post("/courses", data),
 
-  updateCourse: (id: string | number, data: any) => api.put(`/courses/${id}`, data),
+  updateCourse: (id: string | number, data: any) =>
+    api.put(`/courses/${id}`, data),
 
   deleteCourse: (id: string | number) => api.delete(`/courses/${id}`),
 
@@ -104,6 +112,13 @@ export const coursesAPI = {
     api.post(`/courses/${courseId}/subjects`, data),
 
   deleteSubject: (id: string | number) => api.delete(`/subjects/${id}`),
+};
+
+// Subjects API
+export const subjectsAPI = {
+  getSubjects: (params?: any) => api.get("/subjects", { params }),
+
+  getSubject: (id: string | number) => api.get(`/subjects/${id}`),
 };
 
 // Sessions API
@@ -114,13 +129,15 @@ export const sessionsAPI = {
 
   createSession: (data: any) => api.post("/sessions", data),
 
-  updateSession: (id: string | number, data: any) => api.put(`/sessions/${id}`, data),
+  updateSession: (id: string | number, data: any) =>
+    api.put(`/sessions/${id}`, data),
 
   deleteSession: (id: string | number) => api.delete(`/sessions/${id}`),
 
   generateQR: (id: string | number) => api.post(`/sessions/${id}/qr`),
 
-  getSessionAttendance: (id: string | number) => api.get(`/sessions/${id}/attendance`),
+  getSessionAttendance: (id: string | number) =>
+    api.get(`/sessions/${id}/attendance`),
 };
 
 // Attendance API
@@ -224,7 +241,8 @@ export const reportsAPI = {
 
   performance: (params?: any) => api.get("/reports/performance", { params }),
 
-  getDepartmentReports: (params?: any) => api.get("/reports/department", { params }),
+  getDepartmentReports: (params?: any) =>
+    api.get("/reports/department", { params }),
 
   downloadReport: (id: string | number) =>
     api.get(`/reports/download/${id}`, { responseType: "blob" }),
