@@ -36,6 +36,54 @@ router.get("/", authMiddleware, async (req, res, next) => {
     if (status) where.status = status;
     if (date) where.date = new Date(date);
 
+    // ─── Timetable-only filter for student manual check-in ─────────────────
+    if (req.query.timetableOnly === "true" && req.user.role === "student") {
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0 = Sun … 6 = Sat
+      const startOfToday = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+      );
+      const endOfToday = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 1,
+      );
+
+      const timetableEntries = await prisma.timetable.findMany({
+        where: {
+          course: { students: { some: { id: req.user.id } } },
+          dayOfWeek,
+        },
+        select: { courseId: true },
+      });
+
+      const timetableCourseIds = [
+        ...new Set(timetableEntries.map((t) => t.courseId)),
+      ];
+
+      if (timetableCourseIds.length === 0) {
+        return res.json({
+          success: true,
+          data: {
+            sessions: [],
+            pagination: {
+              page: parseInt(page),
+              limit: parseInt(limit),
+              total: 0,
+              pages: 0,
+            },
+          },
+        });
+      }
+
+      // Override filters: today's date range, timetable courses, exclude completed
+      where.date = { gte: startOfToday, lt: endOfToday };
+      where.courseId = { in: timetableCourseIds };
+      where.status = { not: "completed" };
+    }
+
     const skip = (page - 1) * limit;
 
     const [sessions, total] = await Promise.all([
@@ -45,13 +93,17 @@ router.get("/", authMiddleware, async (req, res, next) => {
         take: parseInt(limit),
         include: {
           course: {
-            select: { id: true, name: true, code: true }
+            select: { id: true, name: true, code: true },
           },
           faculty: {
-            select: { id: true, username: true, facultyProfile: { select: { fullName: true } } }
+            select: {
+              id: true,
+              username: true,
+              facultyProfile: { select: { fullName: true } },
+            },
           },
           subject: {
-            select: { id: true, name: true }
+            select: { id: true, name: true },
           },
           qrCode: true,
           // attendanceRecords removed from list for performance
@@ -86,7 +138,13 @@ router.get("/:id", authMiddleware, async (req, res, next) => {
     const session = await prisma.session.findUnique({
       where: { id: parseInt(req.params.id) },
       include: {
-        course: true,
+        course: {
+          include: {
+            students: {
+              include: { studentProfile: true },
+            },
+          },
+        },
         faculty: true,
         subject: true,
         qrCode: true,
@@ -105,9 +163,9 @@ router.get("/:id", authMiddleware, async (req, res, next) => {
       const isEnrolled = await prisma.course.findFirst({
         where: {
           id: session.courseId,
-          students: { some: { id: req.user.id } }
+          students: { some: { id: req.user.id } },
         },
-        select: { id: true }
+        select: { id: true },
       });
 
       if (!isEnrolled) {
@@ -122,7 +180,7 @@ router.get("/:id", authMiddleware, async (req, res, next) => {
       success: true,
       data: {
         session,
-        networkIp: getLocalIp()
+        networkIp: getLocalIp(),
       },
     });
   } catch (error) {
@@ -175,8 +233,8 @@ router.post(
         const course = await prisma.course.findUnique({
           where: { id: courseId },
           include: {
-            subjects: subjectId ? { where: { id: subjectId } } : false
-          }
+            subjects: subjectId ? { where: { id: subjectId } } : false,
+          },
         });
 
         if (!course) {
@@ -186,10 +244,13 @@ router.post(
         }
 
         const isCourseLead = course.facultyId === req.user.id;
-        const isSubjectTeacher = subjectId && course.subjects.some(s => s.facultyId === req.user.id);
+        const isSubjectTeacher =
+          subjectId && course.subjects.some((s) => s.facultyId === req.user.id);
 
         if (!isCourseLead && !isSubjectTeacher) {
-          const error = new Error("Forbidden: You are not authorized to create a session for this course/subject");
+          const error = new Error(
+            "Forbidden: You are not authorized to create a session for this course/subject",
+          );
           error.statusCode = 403;
           throw error;
         }
@@ -212,7 +273,13 @@ router.post(
         },
         include: {
           course: { select: { id: true, name: true, code: true } },
-          faculty: { select: { id: true, username: true, facultyProfile: { select: { fullName: true } } } },
+          faculty: {
+            select: {
+              id: true,
+              username: true,
+              facultyProfile: { select: { fullName: true } },
+            },
+          },
           subject: { select: { id: true, name: true } },
           qrCode: true,
           // New session has 0 records, no need to include
@@ -250,12 +317,14 @@ router.put("/:id", authMiddleware, async (req, res, next) => {
       const isCreator = session.facultyId === req.user.id;
       const course = await prisma.course.findUnique({
         where: { id: session.courseId },
-        select: { facultyId: true }
+        select: { facultyId: true },
       });
       const isCourseLead = course?.facultyId === req.user.id;
 
       if (!isCreator && !isCourseLead) {
-        const error = new Error("Forbidden: You are not authorized to update this session");
+        const error = new Error(
+          "Forbidden: You are not authorized to update this session",
+        );
         error.statusCode = 403;
         throw error;
       }
@@ -329,12 +398,14 @@ router.delete("/:id", authMiddleware, async (req, res, next) => {
       const isCreator = session.facultyId === req.user.id;
       const course = await prisma.course.findUnique({
         where: { id: session.courseId },
-        select: { facultyId: true }
+        select: { facultyId: true },
       });
       const isCourseLead = course?.facultyId === req.user.id;
 
       if (!isCreator && !isCourseLead) {
-        const error = new Error("Forbidden: You are not authorized to delete this session");
+        const error = new Error(
+          "Forbidden: You are not authorized to delete this session",
+        );
         error.statusCode = 403;
         throw error;
       }
@@ -373,12 +444,14 @@ router.post("/:id/qr", authMiddleware, async (req, res, next) => {
       const isCreator = session.facultyId === req.user.id;
       const course = await prisma.course.findUnique({
         where: { id: session.courseId },
-        select: { facultyId: true }
+        select: { facultyId: true },
       });
       const isCourseLead = course?.facultyId === req.user.id;
 
       if (!isCreator && !isCourseLead) {
-        const error = new Error("Forbidden: You are not authorized to generate QR for this session");
+        const error = new Error(
+          "Forbidden: You are not authorized to generate QR for this session",
+        );
         error.statusCode = 403;
         throw error;
       }
@@ -413,6 +486,124 @@ router.post("/:id/qr", authMiddleware, async (req, res, next) => {
     next(error);
   }
 });
+
+// @route   POST /api/sessions/:id/finalize
+// @desc    Mark session as completed and auto-mark absentees (with leave check)
+// @access  Admin, Faculty
+router.post(
+  "/:id/finalize",
+  authMiddleware,
+  requireRole(["admin", "faculty"]),
+  async (req, res, next) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+
+      const session = await prisma.session.findUnique({
+        where: { id: sessionId },
+        include: {
+          course: {
+            include: {
+              students: { include: { studentProfile: true } },
+            },
+          },
+          attendanceRecords: { select: { studentId: true } },
+        },
+      });
+
+      if (!session) {
+        const error = new Error("Session not found");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      if (req.user.role === "faculty") {
+        const isCreator = session.facultyId === req.user.id;
+        const course = await prisma.course.findUnique({
+          where: { id: session.courseId },
+          select: { facultyId: true },
+        });
+        if (!isCreator && course?.facultyId !== req.user.id) {
+          const error = new Error("Forbidden");
+          error.statusCode = 403;
+          throw error;
+        }
+      }
+
+      // Mark session completed
+      await prisma.session.update({
+        where: { id: sessionId },
+        data: { status: "completed" },
+      });
+
+      // Determine eligible students (batch-restricted or all enrolled)
+      const allStudents = session.course.students;
+      const eligibleStudents =
+        session.batches && session.batches.length > 0
+          ? allStudents.filter((s) =>
+              session.batches.includes(s.studentProfile?.batch),
+            )
+          : allStudents;
+
+      const recordedIds = new Set(
+        session.attendanceRecords.map((r) => r.studentId),
+      );
+      const absentees = eligibleStudents.filter((s) => !recordedIds.has(s.id));
+
+      if (absentees.length === 0) {
+        return res.json({
+          success: true,
+          message: "Session finalized. All eligible students are present.",
+          data: { markedAbsent: 0, excusedAbsent: 0 },
+        });
+      }
+
+      // Check for approved leaves covering the session date
+      const sessionDate = new Date(session.date);
+      const absenteeIds = absentees.map((s) => s.id);
+
+      const approvedLeaves = await prisma.leaveApplication.findMany({
+        where: {
+          userId: { in: absenteeIds },
+          status: "approved",
+          startDate: { lte: sessionDate },
+          endDate: { gte: sessionDate },
+        },
+        select: { userId: true },
+      });
+
+      const leaveStudentIds = new Set(approvedLeaves.map((l) => l.userId));
+
+      let markedAbsent = 0;
+      let excusedAbsent = 0;
+
+      const absentRecords = absentees.map((s) => {
+        const hasLeave = leaveStudentIds.has(s.id);
+        if (hasLeave) excusedAbsent++;
+        else markedAbsent++;
+        return {
+          sessionId,
+          studentId: s.id,
+          status: "absent",
+          notes: hasLeave ? "Excused – Approved Leave" : "Auto-marked absent",
+          ipAddress: req.ip,
+        };
+      });
+
+      await prisma.attendance.createMany({
+        data: absentRecords,
+        skipDuplicates: true,
+      });
+
+      res.json({
+        success: true,
+        message: `Session finalized. ${markedAbsent} marked absent, ${excusedAbsent} excused.`,
+        data: { markedAbsent, excusedAbsent },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 // @route   GET /api/sessions/:id/attendance
 // @desc    Get session attendance

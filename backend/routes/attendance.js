@@ -38,7 +38,17 @@ router.get("/", authMiddleware, async (req, res, next) => {
         take: parseInt(limit),
         include: {
           student: {
-            select: { id: true, username: true, studentProfile: { select: { fullName: true, rollNumber: true, enrollmentNumber: true } } }
+            select: {
+              id: true,
+              username: true,
+              studentProfile: {
+                select: {
+                  fullName: true,
+                  rollNumber: true,
+                  enrollmentNumber: true,
+                },
+              },
+            },
           },
           session: {
             select: {
@@ -46,8 +56,8 @@ router.get("/", authMiddleware, async (req, res, next) => {
               topic: true,
               date: true,
               course: { select: { name: true, code: true } },
-              subject: { select: { name: true } }
-            }
+              subject: { select: { name: true } },
+            },
           },
         },
         orderBy: { timestamp: "desc" },
@@ -178,21 +188,37 @@ router.post(
         throw error;
       }
 
-      // Check if student is enrolled in the specific subject (if assigned)
-      if (session.subjectId) {
+      // Fetch student once for all profile-based checks
+      const needsProfileCheck =
+        session.subjectId || (session.batches && session.batches.length > 0);
+      if (needsProfileCheck) {
         const student = await prisma.users.findUnique({
           where: { id: studentId },
-          include: { studentSubjects: true }
+          include: { studentSubjects: true, studentProfile: true },
         });
 
-        const isEnrolledInSubject = (student.studentSubjects || []).some(
-          (s) => s.id === session.subjectId
-        );
+        // Check subject enrollment
+        if (session.subjectId) {
+          const isEnrolledInSubject = (student.studentSubjects || []).some(
+            (s) => s.id === session.subjectId,
+          );
+          if (!isEnrolledInSubject) {
+            const error = new Error("Student is not enrolled in this subject");
+            error.statusCode = 400;
+            throw error;
+          }
+        }
 
-        if (!isEnrolledInSubject) {
-          const error = new Error("Student is not enrolled in this subject");
-          error.statusCode = 400;
-          throw error;
+        // Check batch restriction
+        if (session.batches && session.batches.length > 0) {
+          const studentBatch = student?.studentProfile?.batch;
+          if (!studentBatch || !session.batches.includes(studentBatch)) {
+            const error = new Error(
+              `This session is restricted to batch(es): ${session.batches.join(", ")}. Your batch (${studentBatch || "unknown"}) is not included.`,
+            );
+            error.statusCode = 403;
+            throw error;
+          }
         }
       }
 
@@ -210,13 +236,40 @@ router.post(
         throw error;
       }
 
+      // ─── Proxy Detection ────────────────────────────────────────────────
+      // Flag when two students mark attendance from the same IP in one session
+      let finalNotes = notes || null;
+      if (req.ip && req.user.role === "student") {
+        const sameIpRecord = await prisma.attendance.findFirst({
+          where: {
+            sessionId,
+            studentId: { not: studentId },
+            ipAddress: req.ip,
+            status: "present",
+          },
+          select: { id: true, studentId: true, notes: true },
+        });
+        if (sameIpRecord) {
+          finalNotes = `[PROXY_SUSPECT:sharedWith:${sameIpRecord.studentId}]${notes ? " " + notes : ""}`;
+          // Retroactively flag the earlier record if not already flagged
+          if (!sameIpRecord.notes?.includes("[PROXY_SUSPECT")) {
+            await prisma.attendance.update({
+              where: { id: sameIpRecord.id },
+              data: {
+                notes: `[PROXY_SUSPECT:sharedWith:${studentId}]${sameIpRecord.notes ? " " + sameIpRecord.notes : ""}`,
+              },
+            });
+          }
+        }
+      }
+
       // Create attendance record
       const attendance = await prisma.attendance.create({
         data: {
           sessionId,
           studentId,
           status: status || "present",
-          notes,
+          notes: finalNotes,
           location: req.body.location,
           ipAddress: req.ip,
           deviceInfo: req.body.deviceInfo,
@@ -320,53 +373,58 @@ router.put("/:id", authMiddleware, async (req, res, next) => {
 // @route   DELETE /api/attendance/:id
 // @desc    Delete attendance record
 // @access  Admin, Faculty
-router.delete("/:id", authMiddleware, requireRole(["admin", "faculty"]), async (req, res, next) => {
-  try {
-    // Role check handled by requireRole middleware
+router.delete(
+  "/:id",
+  authMiddleware,
+  requireRole(["admin", "faculty"]),
+  async (req, res, next) => {
+    try {
+      // Role check handled by requireRole middleware
 
-    const attendance = await prisma.attendance.findUnique({
-      where: { id: parseInt(req.params.id) },
-      include: {
-        session: true,
-      },
-    });
+      const attendance = await prisma.attendance.findUnique({
+        where: { id: parseInt(req.params.id) },
+        include: {
+          session: true,
+        },
+      });
 
-    if (!attendance) {
-      const error = new Error("Attendance record not found");
-      error.statusCode = 404;
-      throw error;
+      if (!attendance) {
+        const error = new Error("Attendance record not found");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // For faculty, check if session belongs to them
+      if (
+        req.user.role === "faculty" &&
+        attendance.session.facultyId !== req.user.id
+      ) {
+        const error = new Error("Forbidden");
+        error.statusCode = 403;
+        throw error;
+      }
+
+      await prisma.attendance.delete({
+        where: { id: parseInt(req.params.id) },
+      });
+
+      // Update attendance count in session
+      await prisma.session.update({
+        where: { id: attendance.sessionId },
+        data: {
+          attendanceCount: { decrement: 1 },
+        },
+      });
+
+      res.json({
+        success: true,
+        message: "Attendance deleted successfully",
+      });
+    } catch (error) {
+      next(error);
     }
-
-    // For faculty, check if session belongs to them
-    if (
-      req.user.role === "faculty" &&
-      attendance.session.facultyId !== req.user.id
-    ) {
-      const error = new Error("Forbidden");
-      error.statusCode = 403;
-      throw error;
-    }
-
-    await prisma.attendance.delete({
-      where: { id: parseInt(req.params.id) },
-    });
-
-    // Update attendance count in session
-    await prisma.session.update({
-      where: { id: attendance.sessionId },
-      data: {
-        attendanceCount: { decrement: 1 },
-      },
-    });
-
-    res.json({
-      success: true,
-      message: "Attendance deleted successfully",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 // @route   POST /api/attendance/qr
 // @desc    Mark attendance using QR code
@@ -408,13 +466,11 @@ router.post(
                     select: {
                       id: true,
                       studentProfile: { select: { batch: true } },
-                      studentSubjects: { select: { id: true } }
-                    }
-                  }
-                }
+                      studentSubjects: { select: { id: true } },
+                    },
+                  },
+                },
               },
-              batches: true,
-              subjectId: true,
             },
           },
         },
@@ -436,7 +492,7 @@ router.post(
 
       if (qrCodeData.session.subjectId) {
         const isEnrolledInSubject = (studentData.studentSubjects || []).some(
-          (s) => s.id === qrCodeData.session.subjectId
+          (s) => s.id === qrCodeData.session.subjectId,
         );
 
         if (!isEnrolledInSubject) {
@@ -450,8 +506,13 @@ router.post(
       const sessionBatches = qrCodeData.session.batches || [];
       const studentBatch = studentData.studentProfile?.batch;
 
-      if (sessionBatches.length > 0 && (!studentBatch || !sessionBatches.includes(studentBatch))) {
-        const error = new Error(`Protocol Violation: This session is locked to BATCHES [${sessionBatches.join(", ")}]. Authorized batch access only.`);
+      if (
+        sessionBatches.length > 0 &&
+        (!studentBatch || !sessionBatches.includes(studentBatch))
+      ) {
+        const error = new Error(
+          `Protocol Violation: This session is locked to BATCHES [${sessionBatches.join(", ")}]. Authorized batch access only.`,
+        );
         error.statusCode = 403;
         throw error;
       }
@@ -470,12 +531,38 @@ router.post(
         throw error;
       }
 
+      // ─── Proxy Detection ────────────────────────────────────────────────
+      let qrNotes = null;
+      if (req.ip) {
+        const sameIpRecord = await prisma.attendance.findFirst({
+          where: {
+            sessionId: qrCodeData.sessionId,
+            studentId: { not: req.user.id },
+            ipAddress: req.ip,
+            status: "present",
+          },
+          select: { id: true, studentId: true, notes: true },
+        });
+        if (sameIpRecord) {
+          qrNotes = `[PROXY_SUSPECT:sharedWith:${sameIpRecord.studentId}]`;
+          if (!sameIpRecord.notes?.includes("[PROXY_SUSPECT")) {
+            await prisma.attendance.update({
+              where: { id: sameIpRecord.id },
+              data: {
+                notes: `[PROXY_SUSPECT:sharedWith:${req.user.id}]${sameIpRecord.notes ? " " + sameIpRecord.notes : ""}`,
+              },
+            });
+          }
+        }
+      }
+
       // Create attendance record
       const attendance = await prisma.attendance.create({
         data: {
           sessionId: qrCodeData.sessionId,
           studentId: req.user.id,
           status: "present",
+          notes: qrNotes,
           location: req.body.location,
           ipAddress: req.ip,
           deviceInfo: req.body.deviceInfo,

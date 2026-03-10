@@ -2,18 +2,58 @@ import { cn } from "@/lib/utils";
 import { AttendanceStatus, LeaveStatus } from "@/lib/types";
 
 const statusConfig = {
-  present: { label: "Present", className: "bg-success/15 text-success border-success/30" },
-  late: { label: "Late", className: "bg-warning/15 text-warning border-warning/30" },
-  absent: { label: "Absent", className: "bg-destructive/15 text-destructive border-destructive/30" },
-  pending: { label: "Pending", className: "bg-info/15 text-info border-info/30" },
-  approved: { label: "Approved", className: "bg-success/15 text-success border-success/30" },
-  rejected: { label: "Rejected", className: "bg-destructive/15 text-destructive border-destructive/30" },
+  present: {
+    label: "Present",
+    className:
+      "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    dot: "bg-emerald-500",
+  },
+  late: {
+    label: "Late",
+    className:
+      "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    dot: "bg-amber-500",
+  },
+  absent: {
+    label: "Absent",
+    className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+    dot: "bg-red-500",
+  },
+  pending: {
+    label: "Pending",
+    className: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
+    dot: "bg-sky-500",
+  },
+  approved: {
+    label: "Approved",
+    className:
+      "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    dot: "bg-emerald-500",
+  },
+  rejected: {
+    label: "Rejected",
+    className: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+    dot: "bg-red-500",
+  },
 };
 
-export function StatusBadge({ status }: { status: AttendanceStatus | LeaveStatus }) {
+export function StatusBadge({
+  status,
+}: {
+  status: AttendanceStatus | LeaveStatus;
+}) {
   const config = statusConfig[status];
+  if (!config) return null;
   return (
-    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium", config.className)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+        config.className,
+      )}
+    >
+      <span
+        className={cn("h-1.5 w-1.5 rounded-full flex-shrink-0", config.dot)}
+      />
       {config.label}
     </span>
   );

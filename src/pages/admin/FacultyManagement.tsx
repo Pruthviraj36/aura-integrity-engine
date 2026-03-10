@@ -139,80 +139,80 @@ export default function FacultyManagement() {
                             <UserPlus className="mr-2 h-4 w-4" /> Add Faculty
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-slate-900 border-slate-800 text-white">
+                    <DialogContent className="bg-card border-border">
                         <DialogHeader>
                             <DialogTitle>Add New Faculty Member</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Username</label>
+                                    <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Username</label>
                                     <Input
                                         value={formData.username}
                                         onChange={e => setFormData({ ...formData, username: e.target.value })}
-                                        className="bg-slate-950 border-slate-800"
+                                        className="bg-background border-border"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Password</label>
+                                    <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Password</label>
                                     <Input
                                         type="password"
                                         value={formData.password}
                                         onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                        className="bg-slate-950 border-slate-800"
+                                        className="bg-background border-border"
                                     />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
+                                <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Full Name</label>
                                 <Input
                                     value={formData.fullName}
                                     onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                                    className="bg-slate-950 border-slate-800"
+                                    className="bg-background border-border"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Email</label>
+                                <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Email</label>
                                 <Input
                                     type="email"
                                     value={formData.email}
                                     onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                    className="bg-slate-950 border-slate-800"
+                                    className="bg-background border-border"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Employee ID</label>
+                                    <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Employee ID</label>
                                     <Input
                                         value={formData.employeeId}
                                         onChange={e => setFormData({ ...formData, employeeId: e.target.value })}
-                                        className="bg-slate-950 border-slate-800"
+                                        className="bg-background border-border"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Department</label>
+                                    <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Department</label>
                                     <Input
                                         value={formData.department}
                                         onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                        className="bg-slate-950 border-slate-800"
+                                        className="bg-background border-border"
                                     />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Designation</label>
+                                    <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Designation</label>
                                     <Input
                                         value={formData.designation}
                                         onChange={e => setFormData({ ...formData, designation: e.target.value })}
-                                        className="bg-slate-950 border-slate-800"
+                                        className="bg-background border-border"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase">Qualification</label>
+                                    <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Qualification</label>
                                     <Input
                                         value={formData.qualification}
                                         onChange={e => setFormData({ ...formData, qualification: e.target.value })}
-                                        className="bg-slate-950 border-slate-800"
+                                        className="bg-background border-border"
                                     />
                                 </div>
                             </div>
@@ -312,52 +312,52 @@ export default function FacultyManagement() {
 
             {/* Edit Dialog */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="bg-slate-900 border-slate-800 text-white">
+                <DialogContent className="bg-card border-border">
                     <DialogHeader>
                         <DialogTitle>Edit Faculty Profile</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
+                            <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Full Name</label>
                             <Input
                                 value={formData.fullName}
                                 onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                                className="bg-slate-950 border-slate-800"
+                                className="bg-background border-border"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Employee ID</label>
+                                <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Employee ID</label>
                                 <Input
                                     value={formData.employeeId}
                                     onChange={e => setFormData({ ...formData, employeeId: e.target.value })}
-                                    className="bg-slate-950 border-slate-800"
+                                    className="bg-background border-border"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Department</label>
+                                <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Department</label>
                                 <Input
                                     value={formData.department}
                                     onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                    className="bg-slate-950 border-slate-800"
+                                    className="bg-background border-border"
                                 />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Designation</label>
+                                <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Designation</label>
                                 <Input
                                     value={formData.designation}
                                     onChange={e => setFormData({ ...formData, designation: e.target.value })}
-                                    className="bg-slate-950 border-slate-800"
+                                    className="bg-background border-border"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 uppercase">Qualification</label>
+                                <label className="text-xs font-semibold text-muted-foreground/70 uppercase">Qualification</label>
                                 <Input
                                     value={formData.qualification}
                                     onChange={e => setFormData({ ...formData, qualification: e.target.value })}
-                                    className="bg-slate-950 border-slate-800"
+                                    className="bg-background border-border"
                                 />
                             </div>
                         </div>
@@ -375,16 +375,16 @@ export default function FacultyManagement() {
 
             {/* Assign Subject Dialog */}
             <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
-                <DialogContent className="bg-slate-900 border-slate-800 text-white">
+                <DialogContent className="bg-card border-border">
                     <DialogHeader>
                         <DialogTitle>Assign Subject to {selectedFaculty?.username}</DialogTitle>
                     </DialogHeader>
                     <div className="py-4 space-y-4">
                         <Select onValueChange={(val) => assignSubjectMutation.mutate({ facultyId: selectedFaculty?.id, courseId: parseInt(val) })}>
-                            <SelectTrigger className="bg-slate-950 border-slate-800">
+                            <SelectTrigger className="bg-background border-border">
                                 <SelectValue placeholder="Select a subject..." />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                            <SelectContent className="bg-card border-border">
                                 {courses?.filter((c: any) => c.facultyId !== selectedFaculty?.id).map((course: any) => (
                                     <SelectItem key={course.id} value={course.id.toString()}>
                                         {course.code} — {course.name}

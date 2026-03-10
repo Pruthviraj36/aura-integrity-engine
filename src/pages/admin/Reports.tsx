@@ -1,18 +1,46 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { FileBarChart, Download, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
+import {
+  FileBarChart,
+  Download,
+  FileText,
+  FileSpreadsheet,
+  Loader2,
+} from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { reportsAPI, coursesAPI } from "@/lib/api";
 import { toast } from "sonner";
 
 const reportTypes = [
-  { id: "attendance", name: "Attendance Compliance Report", description: "Detailed student attendance metrics" },
-  { id: "performance", name: "Student Performance Report", description: "Academic and engagement analytics" },
-  { id: "department", name: "Departmental Audit Report", description: "Overview of courses and outcomes" },
-  { id: "naac", name: "NAAC Criteria 2.1.1", description: "Enrolment and Admission Data" },
+  {
+    id: "attendance",
+    name: "Attendance Compliance Report",
+    description: "Detailed student attendance metrics",
+  },
+  {
+    id: "performance",
+    name: "Student Performance Report",
+    description: "Academic and engagement analytics",
+  },
+  {
+    id: "department",
+    name: "Departmental Audit Report",
+    description: "Overview of courses and outcomes",
+  },
+  {
+    id: "naac",
+    name: "NAAC Criteria 2.1.1",
+    description: "Enrolment and Admission Data",
+  },
 ];
 
 export default function Reports() {
@@ -29,18 +57,23 @@ export default function Reports() {
     queryFn: async () => {
       const resp = await reportsAPI.getReports();
       return resp.data.data.reports || [];
-    }
+    },
   });
 
   const { data: courses } = useQuery({
     queryKey: ["admin", "courses-for-depts"],
     queryFn: async () => {
       const resp = await coursesAPI.getCourses();
-      return resp.data.data.courses || (Array.isArray(resp.data.data) ? resp.data.data : []);
-    }
+      return (
+        resp.data.data.courses ||
+        (Array.isArray(resp.data.data) ? resp.data.data : [])
+      );
+    },
   });
 
-  const departmentList = Array.from(new Set(courses?.map((c: any) => c.department))).sort();
+  const departmentList = Array.from(
+    new Set(courses?.map((c: any) => c.department)),
+  ).sort();
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -78,105 +111,134 @@ export default function Reports() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2 text-white uppercase tracking-tighter">
+        <h1 className="text-2xl font-black tracking-tight text-foreground uppercase flex items-center gap-3">
           <FileBarChart className="h-6 w-6 text-primary" /> Reports & Compliance
         </h1>
-        <p className="text-sm text-slate-400 font-mono tracking-wider">GENERATE ACCREDITATION-READY DATA FOR AUDITS</p>
+        <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1">
+          Generate accreditation-ready data for audits
+        </p>
       </div>
 
-      <Card className="bg-slate-900/40 border-slate-800 backdrop-blur-sm shadow-xl">
-        <CardHeader className="pb-3 px-6"><CardTitle className="text-sm font-medium text-slate-300">Configuration Engine</CardTitle></CardHeader>
-        <CardContent className="space-y-6 px-6 pb-6">
+      <Card className="glass-card aura-glow border-none">
+        <CardHeader className="card-header-muted py-4 px-6">
+          <CardTitle className="text-sm font-semibold text-foreground">
+            Configuration Engine
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6 px-6 pb-6 pt-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Department Scope</label>
+              <label className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest">
+                Department Scope
+              </label>
               <Select value={dept} onValueChange={setDept}>
-                <SelectTrigger className="bg-slate-950 border-slate-800 text-slate-200">
+                <SelectTrigger className="bg-background border-border">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                <SelectContent>
                   <SelectItem value="all">Global Institution</SelectItem>
-                  {departmentList.map(d => (
-                    <SelectItem key={d as string} value={d as string}>{d as string}</SelectItem>
+                  {departmentList.map((d) => (
+                    <SelectItem key={d as string} value={d as string}>
+                      {d as string}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Protocol Type</label>
+              <label className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest">
+                Report Type
+              </label>
               <Select value={reportType} onValueChange={setReportType}>
-                <SelectTrigger className="bg-slate-950 border-slate-800 text-slate-200">
+                <SelectTrigger className="bg-background border-border">
                   <SelectValue placeholder="Select report type" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
-                  {reportTypes.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                <SelectContent>
+                  {reportTypes.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Temporal From</label>
+              <label className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest">
+                From Date
+              </label>
               <Input
                 type="date"
-                className="bg-slate-950 border-slate-800 text-slate-200"
+                className="bg-background border-border"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Temporal To</label>
+              <label className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest">
+                To Date
+              </label>
               <Input
                 type="date"
-                className="bg-slate-950 border-slate-800 text-slate-200"
+                className="bg-background border-border"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
               />
             </div>
           </div>
           <Button
-            className="w-full sm:w-auto px-8"
+            className="px-8 font-semibold"
             disabled={!dept || !reportType || isGenerating}
             onClick={handleGenerate}
           >
-            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-            Generate Compliance Payload
+            {isGenerating ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            Generate Report
           </Button>
         </CardContent>
       </Card>
 
       <div className="space-y-4">
-        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest ml-1">Generated Payloads history</h2>
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+          Generated Reports
+        </h2>
         <div className="grid gap-4 md:grid-cols-2">
           {reportsData?.map((r: any) => (
-            <Card key={r.id} className="bg-slate-900/40 border-slate-800 backdrop-blur-sm group hover:border-primary/30 transition-all duration-300">
+            <Card
+              key={r.id}
+              className="glass-card border-none group hover:border-primary/20 transition-all duration-200"
+            >
               <CardContent className="p-5 flex items-start justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-bold text-white group-hover:text-primary transition-colors uppercase tracking-tight">
-                    {reportTypes.find(t => t.id === r.type)?.name || r.type}
+                <div className="space-y-1.5 min-w-0 flex-1 pr-3">
+                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                    {reportTypes.find((t) => t.id === r.type)?.name || r.type}
                   </p>
-                  <p className="text-[10px] text-slate-500 font-mono tracking-tighter uppercase">
-                    SCOPE: {r.scope} // STATUS: {r.status}
+                  <p className="text-[10px] text-muted-foreground/60 font-mono uppercase tracking-tight">
+                    Scope: {r.scope} · Status: {r.status}
                   </p>
-                  <div className="mt-3 flex items-center gap-2 text-[10px] text-slate-600 font-bold uppercase tracking-widest">
+                  <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground/50">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     Generated: {new Date(r.createdAt).toLocaleDateString()}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800"
-                    onClick={() => handleDownload(r.id)}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
+                  onClick={() => handleDownload(r.id)}
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
               </CardContent>
             </Card>
           ))}
           {reportsData?.length === 0 && (
-            <div className="col-span-full py-12 text-center border-2 border-dashed border-slate-900 rounded-2xl">
-              <p className="text-xs text-slate-600 font-mono uppercase tracking-widest">No archival payloads detected</p>
+            <div className="col-span-full py-12 text-center border-2 border-dashed border-border/40 rounded-2xl">
+              <p className="text-xs text-muted-foreground font-mono uppercase tracking-widest">
+                No reports generated yet
+              </p>
             </div>
           )}
         </div>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -37,6 +37,14 @@
     --ring: 187 100% 42%;
 
     --radius: 0.75rem;
+
+    /* Semantic color tokens */
+    --success: 142 72% 29%;
+    --success-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
+    --info: 199 89% 48%;
+    --info-foreground: 210 40% 98%;
 
     /* Design Tokens */
     --grad-aura: linear-gradient(135deg, hsl(var(--primary)) 0%, #00a8cc 100%);
@@ -85,6 +93,14 @@
     --input: 216 34% 17%;
     --ring: 187 100% 50%;
 
+    /* Semantic color tokens */
+    --success: 142 72% 45%;
+    --success-foreground: 222 47% 4%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 4%;
+    --info: 199 89% 48%;
+    --info-foreground: 222 47% 4%;
+
     /* Design Tokens */
     --grad-aura: linear-gradient(135deg, hsl(var(--primary)) 0%, #00d2ff 100%);
     --glass-bg: rgba(15, 23, 42, 0.7);
@@ -109,7 +125,7 @@
 
   body {
     @apply bg-background text-foreground transition-colors duration-300;
-    font-family: 'Outfit', sans-serif;
+    font-family: "Outfit", sans-serif;
     -webkit-font-smoothing: antialiased;
     letter-spacing: -0.01em;
   }
@@ -124,7 +140,7 @@
   }
 
   .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: "JetBrains Mono", monospace;
   }
 }
 
@@ -154,29 +170,49 @@
 }
 
 .glass-card {
-  @apply backdrop-blur-md bg-card/40 border border-white/10 dark:border-white/5 shadow-lg hover:shadow-primary/5 transition-all duration-300;
+  @apply backdrop-blur-md bg-card/60 dark:bg-card/40 border border-border/50 dark:border-white/5 shadow-lg transition-all duration-300;
+}
+
+.glass-card:hover {
+  box-shadow: 0 8px 32px -4px hsl(var(--primary) / 0.1);
 }
 
 .aura-glow {
-  box-shadow: 0 0 50px -12px hsl(var(--primary) / 0.25);
+  box-shadow: 0 0 50px -12px hsl(var(--primary) / 0.2);
+}
+
+.aura-glow:hover {
+  box-shadow: 0 0 60px -8px hsl(var(--primary) / 0.3);
 }
 
 .aura-text-glow {
-  text-shadow: 0 0 15px hsl(var(--primary) / 0.5);
+  text-shadow: 0 0 20px hsl(var(--primary) / 0.4);
 }
 
 .grad-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400;
 }
 
-@keyframes pulse-aura {
+/* Page section header */
+.page-header-title {
+  @apply text-2xl font-black tracking-tight text-foreground;
+}
 
+.page-header-sub {
+  @apply text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1;
+}
+
+/* Card header variant */
+.card-header-muted {
+  @apply bg-muted/30 dark:bg-white/[0.02] border-b border-border/50 px-6 py-4;
+}
+
+@keyframes pulse-aura {
   0%,
   100% {
     opacity: 1;
     transform: scale(1);
   }
-
   50% {
     opacity: 0.8;
     transform: scale(1.02);
@@ -190,4 +226,45 @@
 /* Removal of unneeded italics */
 .italic {
   font-style: normal !important;
+}
+
+/* ── QR Scanner Beam ─────────────────────────────────────────── */
+@keyframes aura-scan-beam {
+  0% {
+    transform: translateY(0px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(190px);
+    opacity: 0.7;
+  }
+}
+.animate-scan-beam {
+  animation: aura-scan-beam 2.2s ease-in-out infinite alternate;
+  position: absolute;
+  left: 2rem;
+  right: 2rem;
+  height: 2px;
+  border-radius: 9999px;
+  z-index: 20;
+}
+
+/* ── Skeleton shimmer ────────────────────────────────────────── */
+@keyframes aura-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--accent)) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: aura-shimmer 1.6s ease-in-out infinite;
 }

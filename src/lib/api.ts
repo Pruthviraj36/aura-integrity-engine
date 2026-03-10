@@ -138,6 +138,9 @@ export const sessionsAPI = {
 
   getSessionAttendance: (id: string | number) =>
     api.get(`/sessions/${id}/attendance`),
+
+  finalizeSession: (id: string | number) =>
+    api.post(`/sessions/${id}/finalize`),
 };
 
 // Attendance API
@@ -176,7 +179,7 @@ export const examsAPI = {
 
 // Leaves API
 export const leavesAPI = {
-  getLeaves: () => api.get("/leaves"),
+  getLeaves: (params?: any) => api.get("/leaves", { params }),
 
   getLeave: (id: string) => api.get(`/leaves/${id}`),
 

@@ -1,0 +1,228 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Loader2,
+  Printer,
+  BookOpen,
+} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { timetableAPI } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface TimetableEntry {
+  id: number;
+  courseId: number;
+  subjectId: number;
+  facultyId: number;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  roomNumber: string;
+  type: string;
+  semester: number;
+  course?: { id: number; code: string; name: string };
+  subject?: { id: number; name: string };
+  faculty?: { id: number; profile?: { fullName?: string }; username?: string };
+}
+
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const dayShort = ["MON", "TUE", "WED", "THU", "FRI"];
+const timeSlots = [
+  { start: "07:45", end: "09:35", label: "Period 1" },
+  { start: "09:50", end: "11:30", label: "Period 2" },
+  { start: "12:10", end: "13:50", label: "Period 3" },
+];
+
+const typeColors: Record<string, string> = {
+  Practical: "bg-violet-500/10 border-violet-500/30 text-violet-400",
+  Lab: "bg-violet-500/10 border-violet-500/30 text-violet-400",
+  Theory: "bg-primary/10 border-primary/30 text-primary",
+  Tutorial: "bg-amber-500/10 border-amber-500/30 text-amber-400",
+};
+
+export default function StudentTimetable() {
+  const { user } = useAuth();
+
+  const { data: timetableData, isLoading } = useQuery<TimetableEntry[]>({
+    queryKey: ["student", "timetable", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      // GET /api/timetable auto-filters by enrolled courses for student role
+      const resp = await timetableAPI.getTimetable({ limit: 200 });
+      return resp.data.data?.timetableEntries ?? [];
+    },
+    enabled: !!user?.id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <span className="text-sm text-muted-foreground font-mono uppercase tracking-widest">
+          Loading Schedule...
+        </span>
+      </div>
+    );
+  }
+
+  const entries = Array.isArray(timetableData) ? timetableData : [];
+
+  const today = new Date().getDay(); // 0=Sun, 1=Mon … 6=Sat
+  const todayIdx = today >= 1 && today <= 5 ? today - 1 : -1;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <Calendar className="h-6 w-6 text-primary" /> Academic Schedule
+          </h1>
+          <p className="text-xs text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1">
+            {user?.profile?.fullName || user?.username} &mdash; Current Semester
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => window.print()}>
+          <Printer className="h-4 w-4 mr-2" /> Print
+        </Button>
+      </div>
+
+      {/* Timetable grid */}
+      <Card className="glass-card aura-glow border-none overflow-hidden">
+        <CardContent className="p-0 overflow-x-auto">
+          <div className="min-w-[700px]">
+            {/* Column headers */}
+            <div className="grid grid-cols-[100px_repeat(5,1fr)] bg-muted/20 border-b border-border/40">
+              <div className="p-3 flex items-center gap-1 text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest">
+                <Clock className="h-3 w-3" /> Time
+              </div>
+              {days.map((day, i) => (
+                <div
+                  key={day}
+                  className={`p-3 text-center text-[11px] font-semibold uppercase tracking-widest border-l border-border/30 transition-colors ${
+                    i === todayIdx ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  {dayShort[i]}
+                  {i === todayIdx && (
+                    <span className="block h-0.5 w-4 bg-primary rounded-full mx-auto mt-1" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Time slot rows */}
+            {timeSlots.map((slot) => (
+              <div
+                key={slot.start}
+                className="grid grid-cols-[100px_repeat(5,1fr)] border-b border-border/20 last:border-0"
+              >
+                <div className="p-3 flex flex-col justify-center bg-muted/10">
+                  <span className="text-[10px] font-mono text-muted-foreground/70">
+                    {slot.start}
+                  </span>
+                  <span className="text-[10px] font-mono text-muted-foreground/40">
+                    – {slot.end}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground/30 uppercase tracking-widest mt-0.5">
+                    {slot.label}
+                  </span>
+                </div>
+
+                {days.map((day, dayIdx) => {
+                  const session = entries.find(
+                    (e) =>
+                      e.dayOfWeek === dayIdx + 1 && e.startTime === slot.start,
+                  );
+                  const colorClass =
+                    typeColors[session?.type ?? "Theory"] ?? typeColors.Theory;
+                  const isToday = dayIdx === todayIdx;
+
+                  return (
+                    <div
+                      key={day}
+                      className={`p-2 border-l border-border/20 min-h-[120px] transition-colors ${
+                        isToday ? "bg-primary/[0.03]" : "hover:bg-muted/10"
+                      }`}
+                    >
+                      {session ? (
+                        <div
+                          className={`h-full rounded-xl border p-3 text-xs flex flex-col gap-2 ${colorClass}`}
+                        >
+                          <div className="flex items-start justify-between gap-1">
+                            <p className="font-semibold text-[11px] leading-tight line-clamp-2 text-foreground">
+                              {session.subject?.name ||
+                                session.course?.name ||
+                                "—"}
+                            </p>
+                            <Badge
+                              variant="outline"
+                              className="text-[8px] px-1.5 py-0 shrink-0 border-current"
+                            >
+                              {session.type || "Theory"}
+                            </Badge>
+                          </div>
+
+                          <div className="mt-auto space-y-1">
+                            <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              {session.roomNumber || "TBA"}
+                            </div>
+                            {session.faculty && (
+                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                                <BookOpen className="h-3 w-3 shrink-0" />
+                                {session.faculty.profile?.fullName ||
+                                  session.faculty.username ||
+                                  "Faculty"}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="h-full border border-dashed border-border/20 rounded-xl flex items-center justify-center">
+                          <span className="text-[9px] text-muted-foreground/20 uppercase tracking-widest">
+                            Free
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3">
+        {Object.entries(typeColors).map(([type, cls]) => (
+          <div
+            key={type}
+            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium ${cls}`}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            {type}
+          </div>
+        ))}
+      </div>
+
+      {/* Note */}
+      <div className="rounded-xl border border-border/40 bg-muted/20 p-4 flex items-start gap-3">
+        <div className="p-2 bg-primary/10 rounded-lg border border-primary/20 shrink-0">
+          <Clock className="h-4 w-4 text-primary" />
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Your timetable is managed by your department. Sessions marked as{" "}
+          <span className="text-primary font-medium">Practical / Lab</span>{" "}
+          require physical attendance. Any conflicts must be reported to the
+          faculty coordinator.
+        </p>
+      </div>
+    </div>
+  );
+}

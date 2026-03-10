@@ -90,8 +90,7 @@ export default function FacultyDashboard() {
   const recentActivity = todaySessions.slice(0, 3).map((s: any) => ({
     text: `${s.subject?.name || s.topic}`,
     subtext: `Ref: ${s.course?.code}`,
-    time:
-      s.status === "completed" ? "Completed" : `Starts @ ${s.startTime}`,
+    time: s.status === "completed" ? "Completed" : `Starts @ ${s.startTime}`,
     type: s.status,
   }));
 
@@ -104,13 +103,14 @@ export default function FacultyDashboard() {
           </h1>
           <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
-            Officer: {user?.profile?.fullName || user?.username} // Institutional Feed
+            Officer: {user?.profile?.fullName || user?.username} //
+            Institutional Feed
           </p>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/faculty/records')}
+          onClick={() => navigate("/faculty/records")}
           className="glass-card border-none text-muted-foreground hover:text-primary font-black uppercase text-[10px] tracking-widest px-4 h-9"
         >
           Audit History <ChevronRight className="ml-2 h-3.5 w-3.5" />
@@ -146,9 +146,9 @@ export default function FacultyDashboard() {
 
       {/* Today's Sessions */}
       <Card className="glass-card aura-glow border-none overflow-hidden">
-        <CardHeader className="bg-primary/5 border-b border-border/10 px-6 py-4">
-          <CardTitle className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" /> Today's Academic Schedule
+        <CardHeader className="card-header-muted">
+          <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Clock className="h-4 w-4 text-primary" /> Today's Schedule
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-4">
@@ -162,7 +162,8 @@ export default function FacultyDashboard() {
 
                 <div className="space-y-1.5 relative z-10">
                   <p className="text-sm font-black text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">
-                    {session.subject?.name || session.course?.code} — {session.topic}
+                    {session.subject?.name || session.course?.code} —{" "}
+                    {session.topic}
                   </p>
                   <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[10px] text-muted-foreground font-mono">
                     <span className="flex items-center gap-2 bg-black/20 px-2 py-0.5 rounded border border-white/5">
@@ -223,12 +224,20 @@ export default function FacultyDashboard() {
               <BarChart data={attainmentData}>
                 <XAxis
                   dataKey="name"
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
+                  tick={{
+                    fill: "hsl(var(--muted-foreground))",
+                    fontSize: 10,
+                    fontWeight: 700,
+                  }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
+                  tick={{
+                    fill: "hsl(var(--muted-foreground))",
+                    fontSize: 10,
+                    fontWeight: 700,
+                  }}
                   axisLine={false}
                   tickLine={false}
                   domain={[0, 100]}
@@ -241,7 +250,7 @@ export default function FacultyDashboard() {
                     borderRadius: 12,
                     fontSize: 12,
                     fontWeight: 700,
-                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                   }}
                 />
                 <Bar
@@ -262,24 +271,29 @@ export default function FacultyDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 space-y-2">
-            {recentActivity.length > 0 ? recentActivity.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-4 p-4 rounded-xl border border-transparent hover:border-border hover:bg-muted/20 transition-all cursor-default group"
-              >
-                <div className="mt-1 h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)] shrink-0 group-hover:scale-125 transition-transform" />
-                <div className="space-y-1">
-                  <p className="text-sm text-foreground font-black uppercase tracking-tight leading-none group-hover:text-primary transition-colors">
-                    {item.text}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-mono">
-                    {item.subtext} • <span className="text-primary/70">{item.time}</span>
-                  </p>
+            {recentActivity.length > 0 ? (
+              recentActivity.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-4 p-4 rounded-xl border border-transparent hover:border-border hover:bg-muted/20 transition-all cursor-default group"
+                >
+                  <div className="mt-1 h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)] shrink-0 group-hover:scale-125 transition-transform" />
+                  <div className="space-y-1">
+                    <p className="text-sm text-foreground font-black uppercase tracking-tight leading-none group-hover:text-primary transition-colors">
+                      {item.text}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground font-mono">
+                      {item.subtext} •{" "}
+                      <span className="text-primary/70">{item.time}</span>
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )) : (
+              ))
+            ) : (
               <div className="text-center py-10">
-                <p className="text-xs text-muted-foreground italic">Standby // No recent activity detected</p>
+                <p className="text-xs text-muted-foreground italic">
+                  Standby // No recent activity detected
+                </p>
               </div>
             )}
           </CardContent>
@@ -287,7 +301,9 @@ export default function FacultyDashboard() {
       </div>
 
       <div className="text-center pt-4">
-        <p className="text-[9px] text-muted-foreground/30 font-mono uppercase tracking-[0.5em]">Aura Integrity Engine // Central Oversight Terminal</p>
+        <p className="text-[9px] text-muted-foreground/30 font-mono uppercase tracking-[0.5em]">
+          Aura Integrity Engine // Central Oversight Terminal
+        </p>
       </div>
     </div>
   );

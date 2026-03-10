@@ -13,6 +13,7 @@ import Login from "./pages/Index";
 // Lazy load pages
 const StudentDashboard = lazy(() => import("./pages/student/Dashboard"));
 const QRScanner = lazy(() => import("./pages/student/QRScanner"));
+const StudentTimetable = lazy(() => import("./pages/student/Timetable"));
 const VerifyAttendance = lazy(() => import("./pages/student/VerifyAttendance"));
 const Leaves = lazy(() => import("./pages/student/Leaves"));
 const ExamPermit = lazy(() => import("./pages/student/ExamPermit"));
@@ -23,6 +24,8 @@ const LiveSession = lazy(() => import("./pages/faculty/LiveSession"));
 const Records = lazy(() => import("./pages/faculty/Records"));
 const Analytics = lazy(() => import("./pages/faculty/Analytics"));
 const FacultyTimetable = lazy(() => import("./pages/faculty/Timetable"));
+const FacultyLeaves = lazy(() => import("./pages/faculty/Leaves"));
+const AdminLeaves = lazy(() => import("./pages/admin/Leaves"));
 
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const StudentManagement = lazy(() => import("./pages/admin/Students"));
@@ -56,7 +59,15 @@ const AppContent = () => {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Navigate to={user ? `/${user.role}/dashboard` : "/login"} replace />} />
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to={user ? `/${user.role}/dashboard` : "/login"}
+              replace
+            />
+          }
+        />
         <Route path="/student/verify" element={<VerifyAttendance />} />
 
         {/* Protected Routes Wrapper */}
@@ -65,6 +76,7 @@ const AppContent = () => {
             {/* Student Routes */}
             <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
               <Route path="/student/dashboard" element={<StudentDashboard />} />
+              <Route path="/student/timetable" element={<StudentTimetable />} />
               <Route path="/student/scan" element={<QRScanner />} />
               <Route path="/student/leaves" element={<Leaves />} />
               <Route path="/student/permit" element={<ExamPermit />} />
@@ -78,6 +90,7 @@ const AppContent = () => {
               <Route path="/faculty/records" element={<Records />} />
               <Route path="/faculty/analytics" element={<Analytics />} />
               <Route path="/faculty/timetable" element={<FacultyTimetable />} />
+              <Route path="/faculty/leaves" element={<FacultyLeaves />} />
             </Route>
 
             {/* Admin Routes */}
@@ -87,6 +100,7 @@ const AppContent = () => {
               <Route path="/admin/students" element={<StudentManagement />} />
               <Route path="/admin/courses" element={<CourseManagement />} />
               <Route path="/admin/timetable" element={<Timetable />} />
+              <Route path="/admin/leaves" element={<AdminLeaves />} />
               <Route path="/admin/reports" element={<Reports />} />
               <Route path="/admin/alerts" element={<ShortageAlerts />} />
             </Route>
@@ -104,7 +118,12 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="aura-theme">
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      storageKey="aura-theme"
+    >
       <TooltipProvider>
         <AuthProvider>
           <Toaster />
