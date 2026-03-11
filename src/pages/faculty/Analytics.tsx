@@ -139,12 +139,12 @@ export default function Analytics() {
       <div className="space-y-8 animate-in fade-in duration-700">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2">
           <div>
-            <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase aura-text-glow">
-              Institutional Intelligence
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Analytics Overview
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.3em] mt-1.5 flex items-center gap-2">
+            <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              Live Analytics // Course Outcome & Engagement
+              Live analytics for course outcomes and engagement.
             </p>
           </div>
           <div className="glass-card aura-glow border-none px-6 py-3 rounded-2xl flex flex-col items-end">

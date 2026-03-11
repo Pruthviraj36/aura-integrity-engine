@@ -197,11 +197,11 @@ export default function FacultyManagement() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-foreground uppercase aura-text-glow">
-              Faculty Command
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Faculty Management
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1">
-              Manage institutional faculty and course assignments
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage faculty profiles and subject assignments.
             </p>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

@@ -75,11 +75,11 @@ export default function ShortageAlerts() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
               <ShieldAlert className="h-6 w-6 text-rose-500" /> Attendance
               Alerts
             </h1>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-muted-foreground">
               Monitor students below attendance threshold
             </p>
           </div>
@@ -91,28 +91,28 @@ export default function ShortageAlerts() {
           </div>
         </div>
 
-        <Card className="bg-slate-900/40 border-rose-500/20 backdrop-blur-md shadow-2xl overflow-hidden relative">
+        <Card className="bg-card/75 border-rose-500/25 backdrop-blur-md shadow-2xl overflow-hidden relative">
           <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-rose-600 to-transparent" />
           <CardContent className="p-0">
             <Table>
-              <TableHeader className="bg-slate-950/40">
-                <TableRow className="border-slate-800 hover:bg-transparent">
-                  <TableHead className="text-slate-400 font-medium text-[10px] uppercase tracking-wider h-11 pl-6">
+              <TableHeader className="bg-muted/35 dark:bg-muted/20">
+                <TableRow className="border-border/60 hover:bg-transparent">
+                  <TableHead className="text-muted-foreground font-medium text-[10px] uppercase tracking-wider h-11 pl-6">
                     Student Information
                   </TableHead>
-                  <TableHead className="text-slate-400 font-medium text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-medium text-[10px] uppercase tracking-wider h-11">
                     Department
                   </TableHead>
-                  <TableHead className="text-slate-400 font-medium text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-medium text-[10px] uppercase tracking-wider h-11">
                     Attendance Rate
                   </TableHead>
-                  <TableHead className="text-slate-400 font-medium text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-medium text-[10px] uppercase tracking-wider h-11">
                     Status
                   </TableHead>
-                  <TableHead className="text-slate-400 font-medium text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-medium text-[10px] uppercase tracking-wider h-11">
                     Parent Contacts
                   </TableHead>
-                  <TableHead className="text-slate-400 font-medium text-[10px] uppercase tracking-wider h-11 text-right pr-6">
+                  <TableHead className="text-muted-foreground font-medium text-[10px] uppercase tracking-wider h-11 text-right pr-6">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -135,19 +135,19 @@ export default function ShortageAlerts() {
                   return (
                     <TableRow
                       key={s.id}
-                      className="border-slate-800/50 hover:bg-rose-500/5 transition-colors"
+                      className="border-border/50 hover:bg-rose-500/8 transition-colors"
                     >
                       <TableCell className="pl-6">
-                        <p className="font-bold text-sm text-slate-100">
+                        <p className="font-bold text-sm text-foreground">
                           {s.studentProfile?.fullName || s.username}
                         </p>
-                        <p className="text-[10px] text-slate-500">
+                        <p className="text-[10px] text-muted-foreground">
                           ID: {s.studentProfile?.enrollmentNumber || s.id}
                         </p>
                       </TableCell>
-                      <TableCell className="text-xs text-slate-300 font-medium">
+                      <TableCell className="text-xs text-foreground/85 font-medium">
                         {s.studentProfile?.department || "N/A"}
-                        <span className="block text-[10px] text-slate-500 font-bold">
+                        <span className="block text-[10px] text-muted-foreground font-bold">
                           Semester: {s.studentProfile?.currentSemester || 1}
                         </span>
                       </TableCell>
@@ -164,10 +164,10 @@ export default function ShortageAlerts() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <p className="text-[10px] text-slate-400 font-mono">
+                        <p className="text-[10px] text-muted-foreground font-mono">
                           {s.studentProfile?.parentPhone || "NO CONTACT"}
                         </p>
-                        <p className="text-[10px] text-slate-500 italic truncate max-w-[150px]">
+                        <p className="text-[10px] text-muted-foreground/85 italic truncate max-w-[150px]">
                           {s.studentProfile?.parentEmail || "NO EMAIL"}
                         </p>
                       </TableCell>
@@ -176,7 +176,7 @@ export default function ShortageAlerts() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-slate-500 hover:text-primary"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
                             onClick={() =>
                               toast.info(`Dispatching memo to ${s.username}`)
                             }
@@ -186,7 +186,7 @@ export default function ShortageAlerts() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-slate-600 hover:text-rose-500"
+                            className="h-8 w-8 text-muted-foreground/80 hover:text-rose-500"
                             onClick={() =>
                               toast.error(`Inhibiting user access for ${s.id}`)
                             }
@@ -202,7 +202,7 @@ export default function ShortageAlerts() {
                   <TableRow>
                     <TableCell
                       colSpan={6}
-                      className="h-32 text-center text-slate-600 italic font-mono uppercase tracking-[0.5em] text-[10px]"
+                      className="h-32 text-center text-muted-foreground italic font-mono uppercase tracking-[0.5em] text-[10px]"
                     >
                       Neural integrity 100% — No breaches detected
                     </TableCell>
@@ -221,9 +221,9 @@ export default function ShortageAlerts() {
           ].map((item) => (
             <div
               key={item.label}
-              className="bg-slate-950/40 p-3 border border-slate-800 rounded-lg flex items-center justify-between"
+              className="bg-card/70 p-3 border border-border/70 rounded-lg flex items-center justify-between"
             >
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                 {item.label}
               </span>
               <span

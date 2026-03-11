@@ -124,12 +124,14 @@ export default function StudentDashboard() {
       <FullScreenLoader show={isLoading} operation="loading" />
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground uppercase">
-            Performance Analytics
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Student Dashboard
           </h1>
-          <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1">
-            {user?.profile?.fullName || user?.username} //{" "}
-            {user?.profile?.enrollmentNumber || "Student"}
+          <p className="text-sm text-muted-foreground mt-1">
+            {user?.profile?.fullName || user?.username}
+            {user?.profile?.enrollmentNumber
+              ? ` (${user.profile.enrollmentNumber})`
+              : ""}
           </p>
         </div>
 

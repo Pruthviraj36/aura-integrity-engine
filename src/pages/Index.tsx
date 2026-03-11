@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,6 +25,7 @@ import {
   Zap,
   BarChart3,
   Shield,
+  Chrome,
 } from "lucide-react";
 import { toast } from "sonner";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
@@ -31,7 +37,7 @@ const Index = () => {
   const [apiStatus, setApiStatus] = useState<"checking" | "online" | "offline">(
     "checking",
   );
-  const { login, user, loading } = useAuth();
+  const { login, loginWithGoogle, user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -68,6 +74,64 @@ const Index = () => {
     };
     checkApi();
   }, []);
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) return;
+
+    const scriptId = "google-identity-service";
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    const initializeGoogle = () => {
+      if (!window.google?.accounts?.id) return;
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async (resp: { credential?: string }) => {
+          if (!resp.credential) {
+            toast.error("Google sign-in failed");
+            return;
+          }
+
+          setIsSubmitting(true);
+          try {
+            await loginWithGoogle(resp.credential);
+            toast.success("Google sign-in successful! Redirecting...");
+          } catch (error: any) {
+            toast.error(
+              error.response?.data?.message ||
+                "Google sign-in is unavailable for this account.",
+            );
+          } finally {
+            setIsSubmitting(false);
+          }
+        },
+      });
+
+      const container = document.getElementById("google-signin-button");
+      if (container) {
+        container.innerHTML = "";
+        window.google.accounts.id.renderButton(container, {
+          theme: "outline",
+          size: "large",
+          shape: "pill",
+          text: "signin_with",
+          width: 360,
+        });
+      }
+    };
+
+    if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogle;
+      document.head.appendChild(script);
+    } else {
+      initializeGoogle();
+    }
+  }, [loginWithGoogle]);
 
   if (loading) return null;
 
@@ -123,13 +187,10 @@ const Index = () => {
                 Aura Integrity
               </span>
             </div>
-            <h1 className="text-5xl font-extrabold tracking-tight text-foreground mb-6 leading-[1.1] animate-in fade-in slide-in-from-left-4 duration-700 delay-100">
-              Next-Generation
+            <h1 className="text-5xl font-bold tracking-tight text-foreground mb-6 leading-[1.1] animate-in fade-in slide-in-from-left-4 duration-700 delay-100">
+              Attendance Management
               <br />
-              <span className="text-primary aura-text-glow">
-                Attendance
-              </span>{" "}
-              Engine
+              Platform
             </h1>
             <p className="text-base text-muted-foreground mb-10 leading-relaxed animate-in fade-in slide-in-from-left-4 duration-700 delay-200">
               Secure, transparent, and seamless attendance management. Monitor
@@ -227,6 +288,12 @@ const Index = () => {
                     >
                       Password
                     </Label>
+                    <Link
+                      to="/forgot-password"
+                      className="text-[10px] font-black uppercase tracking-[0.12em] text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Forgot Password?
+                    </Link>
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -249,6 +316,27 @@ const Index = () => {
                 >
                   <ArrowRight className="mr-2 h-4 w-4" /> Sign In
                 </Button>
+                <div className="w-full flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground/70">
+                  <div className="h-px flex-1 bg-border" />
+                  Or continue with
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+                {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+                  <div
+                    id="google-signin-button"
+                    className="w-full min-h-[42px] flex items-center justify-center"
+                  />
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-11 rounded-xl"
+                    disabled
+                  >
+                    <Chrome className="mr-2 h-4 w-4" /> Google Sign-In
+                    Unavailable
+                  </Button>
+                )}
                 <p className="text-center text-xs text-muted-foreground/60">
                   Unauthorized access is strictly prohibited and logged.
                 </p>

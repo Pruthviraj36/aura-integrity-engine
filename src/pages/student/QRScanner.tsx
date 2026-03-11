@@ -321,11 +321,11 @@ export default function QRScanner() {
             <ShieldCheck className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase aura-text-glow">
-              Biometric Verification
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Attendance Verification
             </h1>
-            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">
-              Secure Attendance Authentication System
+            <p className="text-sm text-muted-foreground">
+              Secure attendance verification.
             </p>
           </div>
         </div>

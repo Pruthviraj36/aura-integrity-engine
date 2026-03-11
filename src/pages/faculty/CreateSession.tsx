@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,9 +57,7 @@ export default function CreateSession() {
 
   const handleGenerate = () => {
     if (!subjectId || !topic || selectedBatches.length === 0) {
-      toast.error(
-        "Protocol violation: Subject, Topic, and at least one Batch required",
-      );
+      toast.error("Subject, topic, and at least one batch are required.");
       return;
     }
 
@@ -88,11 +87,11 @@ export default function CreateSession() {
       />
       <div className="space-y-6 max-w-2xl mx-auto py-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase italic px-4">
-            Initialize Session
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground px-4">
+            Create Session
           </h1>
-          <p className="text-sm text-muted-foreground font-mono tracking-[0.2em]">
-            ESTABLISH SESSION & ATTENDANCE GATEWAY
+          <p className="text-sm text-muted-foreground">
+            Set up a live attendance session.
           </p>
         </div>
 

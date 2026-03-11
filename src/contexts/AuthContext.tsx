@@ -1,51 +1,60 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { authAPI } from "@/lib/api";
+import type { User } from "@/lib/types";
 
 export type Role = "admin" | "faculty" | "student";
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: Role;
-  avatar?: string;
-  profile?: {
-    fullName: string;
-    department?: string;
-    enrollmentNumber?: string;
-    studentId?: string;
-    semester?: number;
-  };
-}
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
   logout: () => void;
   updateUser: (data: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const normalizeUser = (rawUser: any): User => ({
+  ...rawUser,
+  profile:
+    rawUser.studentProfile ||
+    rawUser.facultyProfile ||
+    rawUser.adminProfile ||
+    rawUser.profile,
+});
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("token"),
+  );
   const [loading, setLoading] = useState(true);
+
+  const refreshUser = async () => {
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    const response = await authAPI.getProfile();
+    setUser(normalizeUser(response.data.data.user));
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (token) {
         try {
           console.log("AuthContext: Fetching profile with token...");
-          const response = await authAPI.getProfile();
-          const rawUser = response.data.data.user;
-          const userWithNormalizedProfile = {
-            ...rawUser,
-            profile: rawUser.studentProfile || rawUser.facultyProfile || rawUser.adminProfile || rawUser.profile
-          };
-          setUser(userWithNormalizedProfile);
+          await refreshUser();
         } catch (error) {
           console.error("AuthContext: Failed to fetch profile:", error);
           logout();
@@ -61,16 +70,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await authAPI.login(email, password);
       const { user: rawUser, token } = response.data.data;
-      const userWithNormalizedProfile = {
-        ...rawUser,
-        profile: rawUser.studentProfile || rawUser.facultyProfile || rawUser.adminProfile || rawUser.profile
-      };
-
-      setUser(userWithNormalizedProfile);
+      setUser(normalizeUser(rawUser));
       setToken(token);
       localStorage.setItem("token", token);
     } catch (error) {
       console.error("Login failed:", error);
+      throw error;
+    }
+  };
+
+  const loginWithGoogle = async (idToken: string) => {
+    try {
+      const response = await authAPI.loginWithGoogle(idToken);
+      const { user: rawUser, token } = response.data.data;
+      setUser(normalizeUser(rawUser));
+      setToken(token);
+      localStorage.setItem("token", token);
+    } catch (error) {
+      console.error("Google login failed:", error);
       throw error;
     }
   };
@@ -88,7 +105,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, updateUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+        login,
+        loginWithGoogle,
+        refreshUser,
+        logout,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

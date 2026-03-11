@@ -41,8 +41,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle token expiration or authentication errors
-    if (error.response?.status === 401) {
+    const hadAuthHeader = Boolean(error.config?.headers?.Authorization);
+    if (error.response?.status === 401 && hadAuthHeader) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       window.location.href = "/";
@@ -55,6 +55,14 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (email: string, password: string) =>
     api.post("/auth/login", { email, password }),
+
+  loginWithGoogle: (idToken: string) => api.post("/auth/google", { idToken }),
+
+  forgotPassword: (email: string) =>
+    api.post("/auth/forgot-password", { email }),
+
+  resetPassword: (token: string, newPassword: string) =>
+    api.post("/auth/reset-password", { token, newPassword }),
 
   register: (username: string, email: string, password: string, role: string) =>
     api.post("/auth/register", { username, email, password, role }),

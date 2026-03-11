@@ -68,19 +68,18 @@ export default function FacultyTimetable() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white uppercase flex items-center gap-3 aura-text-glow">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-3">
               <Calendar className="h-7 w-7 text-primary" /> Academic Schedule
             </h1>
-            <p className="text-[10px] text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">
-              Operational Matrix // {user?.profile?.fullName || user?.username}{" "}
-              // Standard Ver.
+            <p className="text-sm text-muted-foreground mt-1">
+              {user?.profile?.fullName || user?.username}
             </p>
           </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="border-slate-800 text-slate-400 hover:text-white bg-slate-900/50"
+              className="border-border/70 text-muted-foreground hover:text-foreground bg-background/70"
               onClick={handleExport}
             >
               <Printer className="h-4 w-4 mr-2" />
@@ -89,18 +88,18 @@ export default function FacultyTimetable() {
           </div>
         </div>
 
-        <Card className="bg-slate-900/40 border-slate-800 backdrop-blur-md overflow-x-auto shadow-2xl">
+        <Card className="bg-card/75 border-border/60 backdrop-blur-md overflow-x-auto shadow-2xl">
           <CardContent className="p-0">
             <div className="min-w-[800px]">
               {/* Header */}
-              <div className="grid grid-cols-[120px_repeat(5,1fr)] bg-slate-950/60 border-b border-slate-800">
-                <div className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
+              <div className="grid grid-cols-[120px_repeat(5,1fr)] bg-muted/35 dark:bg-muted/20 border-b border-border/70">
+                <div className="p-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
                   <Clock className="h-3 w-3" /> Time
                 </div>
                 {days.map((day) => (
                   <div
                     key={day}
-                    className="p-4 text-[10px] font-black text-slate-300 text-center border-l border-slate-800/50 uppercase tracking-[0.3em]"
+                    className="p-4 text-[10px] font-black text-foreground/75 text-center border-l border-border/50 uppercase tracking-[0.3em]"
                   >
                     {day}
                   </div>
@@ -111,9 +110,9 @@ export default function FacultyTimetable() {
               {timeSlots.map((slot) => (
                 <div
                   key={slot.start}
-                  className="grid grid-cols-[120px_repeat(5,1fr)] border-b border-slate-800/30 group"
+                  className="grid grid-cols-[120px_repeat(5,1fr)] border-b border-border/45 group"
                 >
-                  <div className="p-4 text-[11px] text-slate-500 font-mono font-bold bg-slate-950/20 group-hover:text-primary transition-colors flex items-center justify-center">
+                  <div className="p-4 text-[11px] text-muted-foreground font-mono font-bold bg-muted/20 group-hover:text-primary transition-colors flex items-center justify-center">
                     {slot.start} - {slot.end}
                   </div>
                   {days.map((day, dayIdx) => {
@@ -126,12 +125,12 @@ export default function FacultyTimetable() {
                     return (
                       <div
                         key={day}
-                        className="p-3 border-l border-slate-800/30 min-h-[140px] hover:bg-white/5 transition-all duration-300 relative"
+                        className="p-3 border-l border-border/45 min-h-[140px] hover:bg-accent/35 transition-all duration-300 relative"
                       >
                         {session ? (
                           <div
                             className={`h-full rounded-xl p-3 text-xs space-y-2 relative overflow-hidden flex flex-col justify-between shadow-lg group/card transition-all duration-500 border
-                                                    ${session.startTime === "07:45" && dayIdx === 0 ? "bg-primary/10 border-primary/30 aura-glow animate-aura-pulse" : "bg-slate-950/80 border-white/5"}
+                                                    ${session.startTime === "07:45" && dayIdx === 0 ? "bg-primary/10 border-primary/30 aura-glow animate-aura-pulse" : "bg-card/95 dark:bg-card/85 border-border/65"}
                                                 `}
                           >
                             <div className="absolute top-0 right-0 p-1.5 opacity-40 group-hover/card:opacity-100 transition-opacity">
@@ -143,28 +142,28 @@ export default function FacultyTimetable() {
                               </Badge>
                             </div>
                             <div>
-                              <p className="text-slate-100 font-bold text-[11px] leading-tight uppercase tracking-tight">
+                              <p className="text-foreground font-bold text-[11px] leading-tight uppercase tracking-tight">
                                 {session.subject?.name || session.course?.name}
                               </p>
                             </div>
 
                             <div className="space-y-1.5 pt-2">
-                              <div className="flex items-center gap-1.5 text-[9px] text-slate-400 font-bold uppercase tracking-[0.15em]">
+                              <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-bold uppercase tracking-[0.15em]">
                                 <MapPin className="h-3.5 w-3.5 text-primary" />{" "}
                                 {session.roomNumber || "LECTURE HALL"}
                               </div>
-                              <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-mono">
+                              <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground/85 font-mono">
                                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 pulsate" />
                                 REAL-TIME SYNC
                               </div>
                             </div>
 
-                            <div className="h-1 w-full bg-slate-900 rounded-full mt-2 overflow-hidden">
+                            <div className="h-1 w-full bg-muted/70 rounded-full mt-2 overflow-hidden">
                               <div className="h-full bg-primary/50 w-full" />
                             </div>
                           </div>
                         ) : (
-                          <div className="h-full border border-dashed border-slate-800/20 rounded-xl flex items-center justify-center opacity-10 text-[9px] text-slate-500 font-mono uppercase tracking-widest">
+                          <div className="h-full border border-dashed border-border/45 rounded-xl flex items-center justify-center opacity-10 text-[9px] text-muted-foreground font-mono uppercase tracking-widest">
                             Slot Available
                           </div>
                         )}
@@ -177,15 +176,15 @@ export default function FacultyTimetable() {
           </CardContent>
         </Card>
 
-        <div className="bg-slate-900/20 border border-slate-800/50 rounded-xl p-4 flex items-start gap-4">
+        <div className="bg-card/50 border border-border/60 rounded-xl p-4 flex items-start gap-4">
           <div className="bg-primary/10 p-2 rounded-lg border border-primary/20">
             <Clock className="h-4 w-4 text-primary" />
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
               Procedural Note
             </p>
-            <p className="text-xs text-slate-400 font-mono leading-relaxed">
+            <p className="text-xs text-muted-foreground font-mono leading-relaxed">
               The timetable is fixed by the institutional oversight. Any
               schedule conflicts or room reassignments must be authorized via
               the HOD terminal. Sessions marked with{" "}

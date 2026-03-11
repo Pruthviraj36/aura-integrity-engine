@@ -1,23 +1,30 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth, Role } from "@/contexts/AuthContext";
 
 interface ProtectedRouteProps {
-    allowedRoles?: Role[];
+  allowedRoles?: Role[];
 }
 
 export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
-    const { user, loading } = useAuth();
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
-    if (loading) return null; // Or a loader
+  if (loading) return null; // Or a loader
 
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-    if (allowedRoles && !allowedRoles.includes(user.role)) {
-        // Redirect to their own dashboard if they try to access something else
-        return <Navigate to={`/${user.role}/dashboard`} replace />;
-    }
+  if (user.requiresPasswordChange && location.pathname !== "/profile") {
+    return (
+      <Navigate to="/profile" replace state={{ forcedPasswordChange: true }} />
+    );
+  }
 
-    return <Outlet />;
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    // Redirect to their own dashboard if they try to access something else
+    return <Navigate to={`/${user.role}/dashboard`} replace />;
+  }
+
+  return <Outlet />;
 };

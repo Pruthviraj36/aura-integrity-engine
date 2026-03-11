@@ -86,11 +86,11 @@ export default function ExamPermit() {
       <FullScreenLoader show={isLoading} operation="loading" />
       <div className="space-y-8 max-w-2xl mx-auto py-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-black tracking-tighter text-white uppercase italic">
-            Nexus Permit
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
+            Exam Permit
           </h1>
-          <p className="text-[10px] text-slate-500 font-mono tracking-[0.3em] uppercase">
-            Examination Access Authorization // HID-V4
+          <p className="text-sm text-slate-400">
+            Examination access authorization.
           </p>
         </div>
 
@@ -108,10 +108,10 @@ export default function ExamPermit() {
               <div className="flex justify-between items-start border-b border-slate-800 pb-6">
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-primary uppercase tracking-[0.4em]">
-                    AURA INTEGRITY REPOSITORY
+                    Institution Record
                   </p>
-                  <h2 className="text-xl font-black text-white italic uppercase tracking-tight">
-                    End Term Protocol — 2026
+                  <h2 className="text-xl font-semibold text-white tracking-tight">
+                    End-Term Examination 2026
                   </h2>
                   <div className="flex items-center gap-2 mt-2">
                     <div

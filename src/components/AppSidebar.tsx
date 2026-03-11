@@ -17,6 +17,7 @@ import {
   Settings,
   LogOut,
   Shield,
+  UserCircle2,
 } from "lucide-react";
 import { Role } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import React from "react";
+import { Link } from "react-router-dom";
 
 const studentMenu = [
   {
@@ -51,6 +53,7 @@ const studentMenu = [
   },
   { title: "Leave Management", url: "/student/leaves", icon: FileText },
   { title: "Exam Permit", url: "/student/permit", icon: Ticket },
+  { title: "Profile Center", url: "/profile", icon: UserCircle2 },
 ];
 
 const facultyMenu = [
@@ -67,6 +70,7 @@ const facultyMenu = [
     url: "/faculty/analytics",
     icon: BarChart3,
   },
+  { title: "Profile Center", url: "/profile", icon: UserCircle2 },
 ];
 
 const adminMenu = [
@@ -78,6 +82,7 @@ const adminMenu = [
   { title: "Leave Approvals", url: "/admin/leaves", icon: FileText },
   { title: "Audit Reports", url: "/admin/reports", icon: FileBarChart },
   { title: "Risk Compliance", url: "/admin/alerts", icon: AlertTriangle },
+  { title: "Profile Center", url: "/profile", icon: UserCircle2 },
 ];
 
 const roleConfig: Record<
@@ -180,6 +185,17 @@ export function AppSidebar() {
                     (role === "admin" ? "Administration" : "Unassigned")}
                 </p>
               </div>
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors flex-shrink-0"
+                title="Profile"
+              >
+                <Link to="/profile">
+                  <UserCircle2 className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"

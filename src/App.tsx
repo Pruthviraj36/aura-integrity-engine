@@ -9,6 +9,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Index";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 // Lazy load pages
 const StudentDashboard = lazy(() => import("./pages/student/Dashboard"));
@@ -17,6 +19,7 @@ const StudentTimetable = lazy(() => import("./pages/student/Timetable"));
 const VerifyAttendance = lazy(() => import("./pages/student/VerifyAttendance"));
 const Leaves = lazy(() => import("./pages/student/Leaves"));
 const ExamPermit = lazy(() => import("./pages/student/ExamPermit"));
+const ProfilePage = lazy(() => import("./pages/Profile"));
 
 const FacultyDashboard = lazy(() => import("./pages/faculty/Dashboard"));
 const CreateSession = lazy(() => import("./pages/faculty/CreateSession"));
@@ -59,6 +62,8 @@ const AppContent = () => {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/"
           element={
@@ -73,6 +78,7 @@ const AppContent = () => {
         {/* Protected Routes Wrapper */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
+            <Route path="/profile" element={<ProfilePage />} />
             {/* Student Routes */}
             <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
               <Route path="/student/dashboard" element={<StudentDashboard />} />
@@ -120,7 +126,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider
       attribute="class"
-      defaultTheme="dark"
+      defaultTheme="light"
       enableSystem={false}
       storageKey="aura-theme"
     >

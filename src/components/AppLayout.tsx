@@ -22,6 +22,7 @@ function getPageTitle(pathname: string): string {
     reports: "Reports",
     alerts: "Alerts",
     new: "New Session",
+    profile: "Profile Center",
   };
   return (
     titles[last] ||

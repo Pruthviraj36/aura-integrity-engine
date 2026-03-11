@@ -48,12 +48,12 @@ export default function AttendanceRecords() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase aura-text-glow">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               Attendance History
             </h1>
-            <p className="text-sm text-muted-foreground font-mono tracking-wider flex items-center gap-2 mt-1">
-              <Calendar className="h-4 w-4 text-primary/70" /> RECORDS & AUDIT
-              LOGS
+            <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+              <Calendar className="h-4 w-4 text-primary/70" /> Records and audit
+              logs
             </p>
           </div>
 

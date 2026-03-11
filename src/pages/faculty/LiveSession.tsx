@@ -216,7 +216,7 @@ export default function LiveSession() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase aura-text-glow">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {session?.subject?.name || session?.course?.code} —{" "}
               {session?.topic}
             </h1>

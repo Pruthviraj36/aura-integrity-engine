@@ -478,7 +478,9 @@ router.post(
               students: { include: { studentProfile: true } },
             },
           },
-          attendanceRecords: { select: { studentId: true } },
+          attendanceRecords: {
+            select: { id: true, studentId: true, status: true, notes: true },
+          },
         },
       });
 
@@ -516,16 +518,44 @@ router.post(
             )
           : allStudents;
 
+      const eligibleIds = new Set(eligibleStudents.map((s) => s.id));
+
+      // Proxy-suspect present records are converted to absent at finalization.
+      const proxyPresentRecords = session.attendanceRecords.filter(
+        (r) =>
+          r.status === "present" &&
+          r.notes?.includes("[PROXY_SUSPECT") &&
+          eligibleIds.has(r.studentId),
+      );
+      if (proxyPresentRecords.length > 0) {
+        await Promise.all(
+          proxyPresentRecords.map((r) =>
+            prisma.attendance.update({
+              where: { id: r.id },
+              data: {
+                status: "absent",
+                notes: `${r.notes || ""} [AUTO_ABSENT:PROXY_SUSPECT]`.trim(),
+              },
+            }),
+          ),
+        );
+      }
+
+      const proxyMarkedIds = new Set(
+        proxyPresentRecords.map((r) => r.studentId),
+      );
       const recordedIds = new Set(
         session.attendanceRecords.map((r) => r.studentId),
       );
-      const absentees = eligibleStudents.filter((s) => !recordedIds.has(s.id));
+      const absentees = eligibleStudents.filter(
+        (s) => !recordedIds.has(s.id) && !proxyMarkedIds.has(s.id),
+      );
 
-      if (absentees.length === 0) {
+      if (absentees.length === 0 && proxyPresentRecords.length === 0) {
         return res.json({
           success: true,
           message: "Session finalized. All eligible students are present.",
-          data: { markedAbsent: 0, excusedAbsent: 0 },
+          data: { markedAbsent: 0, excusedAbsent: 0, proxyAbsent: 0 },
         });
       }
 
@@ -545,7 +575,7 @@ router.post(
 
       const leaveStudentIds = new Set(approvedLeaves.map((l) => l.userId));
 
-      let markedAbsent = 0;
+      let markedAbsent = proxyPresentRecords.length;
       let excusedAbsent = 0;
 
       const absentRecords = absentees.map((s) => {
@@ -569,7 +599,11 @@ router.post(
       res.json({
         success: true,
         message: `Session finalized. ${markedAbsent} marked absent, ${excusedAbsent} excused.`,
-        data: { markedAbsent, excusedAbsent },
+        data: {
+          markedAbsent,
+          excusedAbsent,
+          proxyAbsent: proxyPresentRecords.length,
+        },
       });
     } catch (error) {
       next(error);

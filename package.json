@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "seed": "cd backend && npx prisma db seed",
+    "seed:optimized": "cd backend && npm run seed:optimized",
     "wipe": "node scripts/wipe-db.cjs"
   },
   "dependencies": {

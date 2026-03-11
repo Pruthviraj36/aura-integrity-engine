@@ -114,7 +114,7 @@ export default function Reports() {
       <FullScreenLoader show={isGenerating} operation="generating" />
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground uppercase flex items-center gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-3">
             <FileBarChart className="h-6 w-6 text-primary" /> Reports &
             Compliance
           </h1>

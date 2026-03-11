@@ -238,14 +238,14 @@ export default function StudentManagement() {
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase flex items-center gap-3 aura-text-glow">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-3">
               <Shield className="h-8 w-8 text-primary" />
               Student Registry
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono tracking-[0.2em] mt-1 uppercase">
+            <p className="text-sm text-muted-foreground mt-1">
               {isLoading
-                ? "INITIALIZING SECURE LINK..."
-                : `${students.length} VERIFIED IDENTITIES IN CORE ENGINE`}
+                ? "Loading student records..."
+                : `${students.length} student records`}
             </p>
           </div>
           <div className="flex gap-2">

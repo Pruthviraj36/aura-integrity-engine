@@ -106,7 +106,7 @@ export default function AdminDashboard() {
       <FullScreenLoader show={isLoading} operation="loading" />
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground uppercase">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Institutional Overview
           </h1>
           <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1">

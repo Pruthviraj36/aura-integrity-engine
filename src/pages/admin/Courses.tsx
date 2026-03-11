@@ -10,7 +10,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Search, Loader2, Plus, Edit2, Trash2, X, Save, BookOpen } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  Save,
+  BookOpen,
+} from "lucide-react";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -181,12 +190,12 @@ export default function CourseManagement() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase flex items-center gap-3 aura-text-glow">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-3">
               <BookOpen className="h-8 w-8 text-primary" />
-              Academic Registry Ontology
+              Course Management
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono tracking-[0.2em] mt-1 uppercase">
-              {courses.length} REGISTERED ENTITIES IN CORE SYSTEM
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage courses and subject assignments.
             </p>
           </div>
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
@@ -195,19 +204,19 @@ export default function CourseManagement() {
                 <Plus className="mr-2 h-4 w-4" /> Index New Course
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-900 border-slate-800 text-white">
+            <DialogContent className="bg-popover border-border text-popover-foreground">
               <DialogHeader>
-                <DialogTitle className="text-xl font-black uppercase tracking-tight text-primary">
-                  Initialise New Course Entity
+                <DialogTitle className="text-xl font-semibold tracking-tight text-primary">
+                  Add Course
                 </DialogTitle>
-                <DialogDescription className="text-muted-foreground font-mono text-[10px] uppercase tracking-widest">
-                  Define core parameters for the academic engine
+                <DialogDescription className="text-muted-foreground text-sm">
+                  Enter the course details below.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                       Unique Code
                     </Label>
                     <Input
@@ -216,11 +225,11 @@ export default function CourseManagement() {
                       onChange={(e) =>
                         setFormData({ ...formData, code: e.target.value })
                       }
-                      className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                      className="bg-background/80 border-border/70 focus:ring-primary/40"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                       Credits
                     </Label>
                     <Input
@@ -229,12 +238,12 @@ export default function CourseManagement() {
                       onChange={(e) =>
                         setFormData({ ...formData, credits: e.target.value })
                       }
-                      className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                      className="bg-background/80 border-border/70 focus:ring-primary/40"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                     Course Title
                   </Label>
                   <Input
@@ -243,12 +252,12 @@ export default function CourseManagement() {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                    className="bg-background/80 border-border/70 focus:ring-primary/40"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                       Department
                     </Label>
                     <Input
@@ -257,11 +266,11 @@ export default function CourseManagement() {
                       onChange={(e) =>
                         setFormData({ ...formData, department: e.target.value })
                       }
-                      className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                      className="bg-background/80 border-border/70 focus:ring-primary/40"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                       Semester
                     </Label>
                     <Select
@@ -270,10 +279,10 @@ export default function CourseManagement() {
                         setFormData({ ...formData, semester: v })
                       }
                     >
-                      <SelectTrigger className="bg-slate-950 border-slate-800">
+                      <SelectTrigger className="bg-background/80 border-border/70">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                      <SelectContent className="bg-popover border-border text-popover-foreground">
                         {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                           <SelectItem key={s} value={s.toString()}>
                             SEM {s}
@@ -284,7 +293,7 @@ export default function CourseManagement() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                     Faculty Head / In-Charge
                   </Label>
                   <Select
@@ -293,10 +302,10 @@ export default function CourseManagement() {
                       setFormData({ ...formData, facultyId: v })
                     }
                   >
-                    <SelectTrigger className="bg-slate-950 border-slate-800">
+                    <SelectTrigger className="bg-background/80 border-border/70">
                       <SelectValue placeholder="Assign course lead..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-910 border-slate-800 text-white">
+                    <SelectContent className="bg-popover border-border text-popover-foreground">
                       {facultyMembers.map((f: any) => (
                         <SelectItem key={f.id} value={f.id.toString()}>
                           {f.facultyProfile?.fullName || f.username}
@@ -323,39 +332,39 @@ export default function CourseManagement() {
         </div>
 
         <div className="relative max-w-sm group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input
             placeholder="Filter courses by code or name..."
-            className="pl-9 bg-slate-900/50 border-slate-800 text-slate-200 placeholder:text-slate-600 focus:ring-primary/50"
+            className="pl-9 bg-background/75 border-border/70 text-foreground placeholder:text-muted-foreground/85 focus:ring-primary/50"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        <Card className="bg-slate-900/40 border-slate-800 backdrop-blur-sm shadow-2xl overflow-hidden">
+        <Card className="bg-card/75 border-border/60 backdrop-blur-sm shadow-2xl overflow-hidden">
           <CardContent className="p-0">
             <Table>
-              <TableHeader className="bg-slate-950/40">
-                <TableRow className="border-slate-800 hover:bg-transparent">
-                  <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">
+              <TableHeader className="bg-muted/35 dark:bg-muted/20">
+                <TableRow className="border-border/60 hover:bg-transparent">
+                  <TableHead className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider h-11">
                     Unique Code
                   </TableHead>
-                  <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider h-11">
                     Course Title
                   </TableHead>
-                  <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider h-11">
                     Department
                   </TableHead>
-                  <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider h-11">
                     Sem/Credits
                   </TableHead>
-                  <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider h-11">
                     Course Head
                   </TableHead>
-                  <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11">
+                  <TableHead className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider h-11">
                     Enrollment
                   </TableHead>
-                  <TableHead className="text-slate-400 font-mono text-[10px] uppercase tracking-wider h-11 text-right">
+                  <TableHead className="text-muted-foreground font-mono text-[10px] uppercase tracking-wider h-11 text-right">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -364,20 +373,20 @@ export default function CourseManagement() {
                 {filtered.map((c: any) => (
                   <TableRow
                     key={c.id}
-                    className="border-slate-800 hover:bg-white/5 transition-colors group"
+                    className="border-border/55 hover:bg-accent/45 transition-colors group"
                   >
                     <TableCell className="font-mono text-sm font-black text-primary group-hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
                       {c.code}
                     </TableCell>
-                    <TableCell className="font-bold text-sm text-slate-100">
+                    <TableCell className="font-bold text-sm text-foreground">
                       {c.name}
                     </TableCell>
-                    <TableCell className="text-xs text-slate-400 font-medium uppercase tracking-tighter">
+                    <TableCell className="text-xs text-muted-foreground font-medium uppercase tracking-tighter">
                       {c.department}
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="text-sm font-mono text-slate-300">
+                        <span className="text-sm font-mono text-foreground/85">
                           SEM {c.semester}
                         </span>
                         <span className="text-[10px] font-bold text-primary">
@@ -392,10 +401,10 @@ export default function CourseManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-100">
+                        <span className="text-xs font-bold text-foreground">
                           {c.students?.length || 0}
                         </span>
-                        <span className="text-[10px] text-slate-500 uppercase font-mono">
+                        <span className="text-[10px] text-muted-foreground uppercase font-mono">
                           Students
                         </span>
                       </div>
@@ -405,7 +414,7 @@ export default function CourseManagement() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-slate-400 hover:text-white hover:bg-white/10"
+                          className="text-muted-foreground hover:text-foreground hover:bg-accent"
                           onClick={() => handleEdit(c)}
                         >
                           <Edit2 className="h-4 w-4" />
@@ -434,7 +443,7 @@ export default function CourseManagement() {
                   <TableRow>
                     <TableCell
                       colSpan={6}
-                      className="h-32 text-center text-slate-500 italic"
+                      className="h-32 text-center text-muted-foreground italic"
                     >
                       No matching courses found in registry
                     </TableCell>
@@ -447,7 +456,7 @@ export default function CourseManagement() {
 
         {/* Edit Course Dialog */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="bg-slate-900 border-slate-800 text-white">
+          <DialogContent className="bg-popover border-border text-popover-foreground">
             <DialogHeader>
               <DialogTitle className="text-xl font-black uppercase tracking-tight text-primary">
                 Modify Course Parameters
@@ -458,7 +467,7 @@ export default function CourseManagement() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                   Course Title
                 </Label>
                 <Input
@@ -466,12 +475,12 @@ export default function CourseManagement() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                  className="bg-background/80 border-border/70 focus:ring-primary/40"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                     Department
                   </Label>
                   <Input
@@ -479,11 +488,11 @@ export default function CourseManagement() {
                     onChange={(e) =>
                       setFormData({ ...formData, department: e.target.value })
                     }
-                    className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                    className="bg-background/80 border-border/70 focus:ring-primary/40"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                     Semester
                   </Label>
                   <Select
@@ -492,10 +501,10 @@ export default function CourseManagement() {
                       setFormData({ ...formData, semester: v })
                     }
                   >
-                    <SelectTrigger className="bg-slate-950 border-slate-800">
+                    <SelectTrigger className="bg-background/80 border-border/70">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                    <SelectContent className="bg-popover border-border text-popover-foreground">
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                         <SelectItem key={s} value={s.toString()}>
                           SEM {s}
@@ -527,7 +536,7 @@ export default function CourseManagement() {
         </Dialog>
         {/* Subject Management Dialog */}
         <Dialog open={isSubjectsOpen} onOpenChange={setIsSubjectsOpen}>
-          <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-2xl">
+          <DialogContent className="bg-popover border-border text-popover-foreground max-w-2xl">
             <DialogHeader>
               <DialogTitle className="text-xl font-black uppercase tracking-tight text-primary">
                 Granular Subject Registry
@@ -539,14 +548,14 @@ export default function CourseManagement() {
 
             <div className="space-y-6 py-4">
               {/* Add Subject form */}
-              <div className="bg-slate-950/50 p-4 border border-slate-800 rounded-lg space-y-4">
-                <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">
+              <div className="bg-card/65 p-4 border border-border/70 rounded-lg space-y-4">
+                <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                   Index New Subject Component
                 </h3>
                 <div className="grid grid-cols-12 gap-3">
                   <Input
                     placeholder="CODE"
-                    className="col-span-3 bg-slate-900 border-slate-800 text-xs"
+                    className="col-span-3 bg-background/80 border-border/70 text-xs"
                     value={subjectForm.code}
                     onChange={(e) =>
                       setSubjectForm({ ...subjectForm, code: e.target.value })
@@ -554,7 +563,7 @@ export default function CourseManagement() {
                   />
                   <Input
                     placeholder="SUBJECT NAME"
-                    className="col-span-4 bg-slate-900 border-slate-800 text-xs"
+                    className="col-span-4 bg-background/80 border-border/70 text-xs"
                     value={subjectForm.name}
                     onChange={(e) =>
                       setSubjectForm({ ...subjectForm, name: e.target.value })
@@ -566,10 +575,10 @@ export default function CourseManagement() {
                       setSubjectForm({ ...subjectForm, type: v })
                     }
                   >
-                    <SelectTrigger className="col-span-3 bg-slate-900 border-slate-800 text-xs h-9">
+                    <SelectTrigger className="col-span-3 bg-background/80 border-border/70 text-xs h-9">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                    <SelectContent className="bg-popover border-border text-popover-foreground">
                       <SelectItem value="Theory">Theory</SelectItem>
                       <SelectItem value="Practical">Practical</SelectItem>
                       <SelectItem value="Tutorial">Tutorial</SelectItem>
@@ -581,10 +590,10 @@ export default function CourseManagement() {
                       setSubjectForm({ ...subjectForm, facultyId: v })
                     }
                   >
-                    <SelectTrigger className="col-span-3 bg-slate-900 border-slate-800 text-xs h-9">
+                    <SelectTrigger className="col-span-3 bg-background/80 border-border/70 text-xs h-9">
                       <SelectValue placeholder="Select Faculty" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                    <SelectContent className="bg-popover border-border text-popover-foreground">
                       {facultyMembers.map((f: any) => (
                         <SelectItem key={f.id} value={f.id.toString()}>
                           {f.facultyProfile?.fullName || f.username}
@@ -597,7 +606,7 @@ export default function CourseManagement() {
                   <Input
                     placeholder="CREDITS"
                     type="number"
-                    className="col-span-2 bg-slate-900 border-slate-800 text-xs"
+                    className="col-span-2 bg-background/80 border-border/70 text-xs"
                     value={subjectForm.credits}
                     onChange={(e) =>
                       setSubjectForm({
@@ -609,7 +618,7 @@ export default function CourseManagement() {
                   <Input
                     placeholder="TOTAL SESSIONS"
                     type="number"
-                    className="col-span-3 bg-slate-900 border-slate-800 text-xs"
+                    className="col-span-3 bg-background/80 border-border/70 text-xs"
                     value={subjectForm.totalClasses}
                     onChange={(e) =>
                       setSubjectForm({
@@ -620,7 +629,7 @@ export default function CourseManagement() {
                   />
                   <Input
                     placeholder="DESCRIPTION"
-                    className="col-span-5 bg-slate-900 border-slate-800 text-xs"
+                    className="col-span-5 bg-background/80 border-border/70 text-xs"
                     value={subjectForm.description}
                     onChange={(e) =>
                       setSubjectForm({
@@ -645,16 +654,16 @@ export default function CourseManagement() {
 
               {/* List of subjects */}
               <div className="space-y-2">
-                <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">
+                <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                   Active Components
                 </h3>
-                <div className="border border-slate-800 rounded-lg overflow-hidden">
+                <div className="border border-border/60 rounded-lg overflow-hidden bg-card/50">
                   <Table>
                     <TableBody>
                       {selectedCourse?.subjects?.map((s: any) => (
                         <TableRow
                           key={s.id}
-                          className="border-slate-800 hover:bg-white/5 bg-slate-900/40"
+                          className="border-border/55 hover:bg-accent/45 bg-transparent"
                         >
                           <TableCell className="font-mono text-xs font-bold text-primary">
                             {s.code}
@@ -663,12 +672,12 @@ export default function CourseManagement() {
                             {s.name}
                           </TableCell>
                           <TableCell>
-                            <span className="text-[10px] font-bold uppercase tracking-widest bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">
+                            <span className="text-[10px] font-bold uppercase tracking-widest bg-muted/50 px-2 py-0.5 rounded text-muted-foreground border border-border/65">
                               {s.type}
                             </span>
                           </TableCell>
                           <TableCell>
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">
                               {s.faculty?.facultyProfile?.fullName ||
                                 s.faculty?.username ||
                                 "Not Assigned"}
@@ -692,7 +701,7 @@ export default function CourseManagement() {
                       {(!selectedCourse?.subjects ||
                         selectedCourse.subjects.length === 0) && (
                         <TableRow>
-                          <TableCell className="text-center py-8 text-slate-500 font-mono text-xs uppercase italic">
+                          <TableCell className="text-center py-8 text-muted-foreground font-mono text-xs uppercase italic">
                             No active components indexed
                           </TableCell>
                         </TableRow>

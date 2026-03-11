@@ -236,12 +236,11 @@ export default function Timetable() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-foreground uppercase flex items-center gap-3 aura-text-glow">
-              <Calendar className="h-7 w-7 text-primary" /> Curricular Schedule
-              Hub
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-3">
+              <Calendar className="h-7 w-7 text-primary" /> Timetable Management
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono tracking-[0.2em] uppercase mt-1">
-              Institutional Control Matrix // Management Access
+            <p className="text-sm text-muted-foreground mt-1">
+              Create and manage class schedules.
             </p>
           </div>
         </div>
@@ -249,20 +248,20 @@ export default function Timetable() {
         {/* Search and Filter */}
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Search courses, rooms, or faculty..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-slate-950 border-slate-800 focus:ring-primary/40"
+              className="pl-10 bg-background/80 border-border/70 focus:ring-primary/40"
             />
           </div>
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[180px] bg-slate-950 border-slate-800">
+            <SelectTrigger className="w-[180px] bg-background/80 border-border/70">
               <SelectValue placeholder="Filter by type" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+            <SelectContent className="bg-popover border-border text-popover-foreground">
               {sessionTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {type}
@@ -272,7 +271,7 @@ export default function Timetable() {
           </Select>
           <Button
             variant="outline"
-            className="border-slate-800 text-slate-400 hover:text-white"
+            className="border-border/70 text-muted-foreground hover:text-foreground"
             onClick={handleExport}
           >
             <Download className="h-4 w-4 mr-2" />
@@ -280,7 +279,7 @@ export default function Timetable() {
           </Button>
           <Button
             variant="outline"
-            className="border-slate-800 text-slate-400 hover:text-white"
+            className="border-border/70 text-muted-foreground hover:text-foreground"
             onClick={handlePrint}
           >
             <Printer className="h-4 w-4 mr-2" />
@@ -288,12 +287,12 @@ export default function Timetable() {
           </Button>
         </div>
 
-        <Card className="bg-slate-900/40 border-slate-800 backdrop-blur-md overflow-x-auto shadow-2xl">
+        <Card className="bg-card/75 border-border/60 backdrop-blur-md overflow-x-auto shadow-2xl">
           <CardContent className="p-0">
             <div className="min-w-[1000px]">
               {/* Header */}
-              <div className="grid grid-cols-[120px_repeat(5,1fr)] bg-slate-950/60 border-b border-slate-800">
-                <div className="p-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
+              <div className="grid grid-cols-[120px_repeat(5,1fr)] bg-muted/35 dark:bg-muted/20 border-b border-border/70">
+                <div className="p-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2">
                   <Clock className="h-3 w-3" /> Time Slots
                 </div>
                 {days.map((day, idx) => (
@@ -310,9 +309,9 @@ export default function Timetable() {
               {timeSlots.map((slot) => (
                 <div
                   key={slot.start}
-                  className="grid grid-cols-[120px_repeat(5,1fr)] border-b border-slate-800/30 group"
+                  className="grid grid-cols-[120px_repeat(5,1fr)] border-b border-border/45 group"
                 >
-                  <div className="p-4 text-[11px] text-slate-500 font-mono font-bold bg-slate-950/20 group-hover:text-primary transition-colors">
+                  <div className="p-4 text-[11px] text-muted-foreground font-mono font-bold bg-muted/20 group-hover:text-primary transition-colors">
                     {slot.start} - {slot.end}
                   </div>
                   {days.map((day, dayIdx) => {
@@ -326,13 +325,13 @@ export default function Timetable() {
                     return (
                       <div
                         key={day}
-                        className="p-3 border-l border-slate-800/30 min-h-[120px] hover:bg-white/5 transition-all duration-300 cursor-pointer group/slot relative"
+                        className="p-3 border-l border-border/45 min-h-[120px] hover:bg-accent/35 transition-all duration-300 cursor-pointer group/slot relative"
                         onClick={() =>
                           !session && handleSlotClick(dayIdx, slot)
                         }
                       >
                         {session ? (
-                          <div className="h-full rounded-xl bg-slate-950/80 border border-white/5 p-3 text-xs space-y-2 group/card relative overflow-hidden flex flex-col justify-between shadow-lg transition-all hover:border-primary/30">
+                          <div className="h-full rounded-xl bg-card/95 dark:bg-card/85 border border-border/65 p-3 text-xs space-y-2 group/card relative overflow-hidden flex flex-col justify-between shadow-lg transition-all hover:border-primary/30">
                             <button
                               className="absolute top-1 right-1 p-1 opacity-0 group-hover/card:opacity-100 transition-opacity bg-red-500/10 hover:bg-red-500/20 rounded-md text-red-500 border border-red-500/20"
                               onClick={(e) => {
@@ -344,16 +343,16 @@ export default function Timetable() {
                               <Trash2 className="h-3 w-3" />
                             </button>
                             <div>
-                              <p className="text-slate-100 font-bold text-[11px] leading-tight uppercase tracking-tight">
+                              <p className="text-foreground font-bold text-[11px] leading-tight uppercase tracking-tight">
                                 {session.subject?.name || session.course?.name}
                               </p>
                             </div>
                             <div className="space-y-1.5 pt-2">
-                              <div className="flex items-center gap-1.5 text-[9px] text-slate-500 font-bold uppercase tracking-widest">
+                              <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-bold uppercase tracking-widest">
                                 <MapPin className="h-3.5 w-3.5 text-primary/60" />{" "}
                                 {session.roomNumber || "UNASSIGNED"}
                               </div>
-                              <p className="text-[9px] text-slate-600 font-mono truncate uppercase">
+                              <p className="text-[9px] text-muted-foreground/80 font-mono truncate uppercase">
                                 {session.facultyProfile?.fullName ||
                                   session.faculty?.username ||
                                   "SECURE ACCESS"}
@@ -369,7 +368,7 @@ export default function Timetable() {
                             </div>
                           </div>
                         ) : (
-                          <div className="h-full border border-dashed border-slate-800/20 rounded-xl flex items-center justify-center opacity-0 group-hover/slot:opacity-100 transition-opacity">
+                          <div className="h-full border border-dashed border-border/45 rounded-xl flex items-center justify-center opacity-0 group-hover/slot:opacity-100 transition-opacity">
                             <Plus className="h-5 w-5 text-primary/40" />
                           </div>
                         )}
@@ -387,18 +386,18 @@ export default function Timetable() {
           <div className="flex items-center justify-center gap-2">
             <Button
               variant="outline"
-              className="border-slate-800 text-slate-400 hover:text-white"
+              className="border-border/70 text-muted-foreground hover:text-foreground"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-muted-foreground">
               Page {currentPage} of {totalPages}
             </span>
             <Button
               variant="outline"
-              className="border-slate-800 text-slate-400 hover:text-white"
+              className="border-border/70 text-muted-foreground hover:text-foreground"
               disabled={currentPage === totalPages}
               onClick={() =>
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
@@ -420,7 +419,7 @@ export default function Timetable() {
         </div>
 
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogContent className="bg-slate-900 border-slate-800 text-white">
+          <DialogContent className="bg-popover border-border text-popover-foreground">
             <DialogHeader>
               <DialogTitle className="text-xl font-black uppercase tracking-tight text-primary">
                 Create Timetable Entry
@@ -432,7 +431,7 @@ export default function Timetable() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                   Course
                 </Label>
                 <Select
@@ -441,10 +440,10 @@ export default function Timetable() {
                     setFormData({ ...formData, courseId: v, subjectId: "" })
                   }
                 >
-                  <SelectTrigger className="bg-slate-950 border-slate-800">
+                  <SelectTrigger className="bg-background/80 border-border/70">
                     <SelectValue placeholder="Select course..." />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                  <SelectContent className="bg-popover border-border text-popover-foreground">
                     {courses?.map((c: Course) => (
                       <SelectItem key={c.id} value={c.id.toString()}>
                         {c.code} — {c.name}
@@ -455,7 +454,7 @@ export default function Timetable() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                   Subject
                 </Label>
                 <Select
@@ -465,7 +464,7 @@ export default function Timetable() {
                   }
                   disabled={!formData.courseId}
                 >
-                  <SelectTrigger className="bg-slate-950 border-slate-800">
+                  <SelectTrigger className="bg-background/80 border-border/70">
                     <SelectValue
                       placeholder={
                         !formData.courseId
@@ -474,7 +473,7 @@ export default function Timetable() {
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                  <SelectContent className="bg-popover border-border text-popover-foreground">
                     {subjects.map((s: Subject) => (
                       <SelectItem key={s.id} value={s.id.toString()}>
                         {s.name}
@@ -485,7 +484,7 @@ export default function Timetable() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                   Faculty
                 </Label>
                 <Select
@@ -495,7 +494,7 @@ export default function Timetable() {
                   }
                   disabled={!formData.courseId}
                 >
-                  <SelectTrigger className="bg-slate-950 border-slate-800">
+                  <SelectTrigger className="bg-background/80 border-border/70">
                     <SelectValue
                       placeholder={
                         !formData.courseId
@@ -504,7 +503,7 @@ export default function Timetable() {
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                  <SelectContent className="bg-popover border-border text-popover-foreground">
                     {facultyData?.map((f: Faculty) => (
                       <SelectItem key={f.id} value={f.id.toString()}>
                         {f.facultyProfile?.fullName || f.username}
@@ -516,7 +515,7 @@ export default function Timetable() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                     Room Number
                   </Label>
                   <Input
@@ -525,12 +524,12 @@ export default function Timetable() {
                     onChange={(e) =>
                       setFormData({ ...formData, roomNumber: e.target.value })
                     }
-                    className="bg-slate-950 border-slate-800 focus:ring-primary/40"
+                    className="bg-background/80 border-border/70 focus:ring-primary/40"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                     Semester
                   </Label>
                   <Select
@@ -539,10 +538,10 @@ export default function Timetable() {
                       setFormData({ ...formData, semester: v })
                     }
                   >
-                    <SelectTrigger className="bg-slate-950 border-slate-800">
+                    <SelectTrigger className="bg-background/80 border-border/70">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                    <SelectContent className="bg-popover border-border text-popover-foreground">
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((semester) => (
                         <SelectItem key={semester} value={semester.toString()}>
                           Semester {semester}
@@ -554,17 +553,17 @@ export default function Timetable() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                   Session Type
                 </Label>
                 <Select
                   value={formData.type}
                   onValueChange={(v) => setFormData({ ...formData, type: v })}
                 >
-                  <SelectTrigger className="bg-slate-950 border-slate-800">
+                  <SelectTrigger className="bg-background/80 border-border/70">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                  <SelectContent className="bg-popover border-border text-popover-foreground">
                     <SelectItem value="Theory">Theory</SelectItem>
                     <SelectItem value="Practical">Practical</SelectItem>
                     <SelectItem value="Tutorial">Tutorial</SelectItem>

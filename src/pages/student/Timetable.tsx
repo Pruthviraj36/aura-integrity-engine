@@ -71,7 +71,7 @@ export default function StudentTimetable() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
               <Calendar className="h-6 w-6 text-primary" /> Academic Schedule
             </h1>
             <p className="text-xs text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1">

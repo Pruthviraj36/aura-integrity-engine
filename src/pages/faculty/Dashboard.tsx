@@ -92,13 +92,12 @@ export default function FacultyDashboard() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase aura-text-glow">
-              Academic Oversight
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Faculty Dashboard
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
+            <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
-              Officer: {user?.profile?.fullName || user?.username} //
-              Institutional Feed
+              Signed in as {user?.profile?.fullName || user?.username}
             </p>
           </div>
           <Button
