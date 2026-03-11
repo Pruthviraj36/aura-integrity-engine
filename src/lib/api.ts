@@ -1,7 +1,14 @@
 import axios from "axios";
 
 const getBaseUrl = () => {
-  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (import.meta.env.VITE_API_URL) {
+    let url = import.meta.env.VITE_API_URL as string;
+    // Auto-append /api if it was forgotten in the environment variables
+    if (!url.endsWith('/api') && !url.includes('/api/')) {
+      url = url.replace(/\/$/, '') + '/api';
+    }
+    return url;
+  }
 
   // Dynamic fallback: if we're on localhost but want to hit the network IP
   if (
